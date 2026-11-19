@@ -1,7 +1,7 @@
 """Session context for the SessionStart hook: factual, size-capped, read from files on disk."""
 from pathlib import Path
 
-from . import PLUGIN_ROOT, plugin_version
+from . import PLUGIN_ROOT, annotations, plugin_version
 from .markdown import EMPTY_LABEL, TABLE_SEPARATOR, strip_comments
 from .paths import CONFIG, PROJECT, STATE, is_initialized, load_config
 from .projectmap import area_record, documents_line, load_map, split_record, status_report, summary_line
@@ -69,6 +69,29 @@ def _read(root, rel):
     return compact(path.read_text(encoding='utf-8'))
 
 
+def _annotation_lines(root):
+    """The list of areas (not the index itself, which can be large) and a count of annotation problems."""
+    try:
+        areas = annotations.load_areas(root)
+        problems = annotations.check(root)
+    except (OSError, ValueError) as exc:
+        return [f'Annotation index unavailable: {exc}']
+    if areas:
+        listed = '; '.join(f'{name}: {desc}' for name, desc in sorted(areas.items()))
+        lines = [f'Areas ({len(areas)}): {listed}. Query the annotation index with `simple-eng annotations --area NAME`, '
+                 '`--related-to PATH`, or `--search TEXT` instead of scanning the codebase.']
+    else:
+        lines = ['No areas are defined yet, so the annotation index is empty. Build it with '
+                 'simple-eng:analyze-existing-project (existing code) or as files are added (`simple-eng areas add`).']
+    if problems:
+        counts = {}
+        for p in problems:
+            counts[p['kind']] = counts.get(p['kind'], 0) + 1
+        lines.append('Annotation index problems: ' + ', '.join(f'{n} {kind}' for kind, n in counts.items())
+                     + ' (`simple-eng validate` lists them).')
+    return lines
+
+
 def build_context(root, plugin_root=PLUGIN_ROOT, limit=DEFAULT_LIMIT):
     limit = min(limit, HARD_LIMIT)
     if not is_initialized(root):
@@ -84,6 +107,7 @@ def build_context(root, plugin_root=PLUGIN_ROOT, limit=DEFAULT_LIMIT):
     except ValueError as exc:
         config = {}
         head.append(f'Knowledge areas unavailable: {exc}')
+    head.extend(_annotation_lines(root))
     try:
         head.extend(upgrade_lines(root, config))
     except (OSError, ValueError) as exc:

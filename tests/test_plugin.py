@@ -24,10 +24,10 @@ class PluginStructureTests(unittest.TestCase):
 
     def test_hooks_cover_each_handler(self):
         hooks = json.loads((PLUGIN / 'hooks/hooks.json').read_text())['hooks']
-        self.assertEqual(set(hooks), {'SessionStart'})
+        self.assertEqual(set(hooks), {'SessionStart', 'PostToolUse', 'Stop'})
         self.assertIn('compact', hooks['SessionStart'][0]['matcher'])
         commands = json.dumps(hooks)
-        for name in ('session-start',):
+        for name in ('session-start', 'post-tool-use', 'stop'):
             self.assertIn(name, commands)
 
     def test_user_only_skills(self):

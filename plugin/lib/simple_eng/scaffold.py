@@ -6,8 +6,15 @@ import re
 from pathlib import Path
 
 from . import PLUGIN_ROOT, plugin_version
-from .paths import CONFIG, PROJECT, STATE, load_config
+from . import annotations
+from .paths import ANNOTATIONS, AREAS, CONFIG, PROJECT, STATE, load_config
 from .projectmap import MISSING, NOT_APPLICABLE, load_documents, status_report
+
+PROJECT_AREA = 'project'
+PROJECT_AREA_DESCRIPTION = 'Project-wide docs, configuration, and tooling that belong to no single business area'
+PURPOSES = {'CLAUDE.md': 'Instructions Claude Code loads in every session, including the simple-eng rules block',
+            PROJECT: 'Stable project facts: problem and users, scope, constraints, stack, commands, environments',
+            STATE: 'Working state for the next session: current focus, checkpoints, open questions, recent changes'}
 
 START = '<!-- simple-eng:start version={version} -->'
 END = '<!-- simple-eng:end -->'
@@ -55,7 +62,13 @@ def planned_changes(root, plugin_root=PLUGIN_ROOT):
     config.setdefault('initialized', dt.date.today().isoformat())
     config['framework_version'] = plugin_version(plugin_root)
     config.setdefault('areas', {})
+    config.setdefault('stage', 'prototype')
+    config.setdefault('agent_threshold', 15)
+    config.setdefault('annotation_exclude', list(annotations.DEFAULT_EXCLUDE))
     plan(CONFIG, json.dumps(config, indent=2) + '\n')
+    for rel, empty in ((ANNOTATIONS, ''), (AREAS, json.dumps({'areas': {PROJECT_AREA: PROJECT_AREA_DESCRIPTION}}, indent=2) + '\n')):
+        if not (root / rel).exists():
+            plan(rel, empty)
     claude = root / 'CLAUDE.md'
     plan('CLAUDE.md', _with_block(claude.read_text(encoding='utf-8') if claude.is_file() else None, claude_md_block(plugin_root)))
     for rel, template in ((PROJECT, 'project.md'), (STATE, 'state.md')):
@@ -93,3 +106,18 @@ def apply_changes(root, changes):
         path = Path(root) / change['path']
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(change['content'], encoding='utf-8')
+
+
+def annotate_scaffold(root, plugin_root=PLUGIN_ROOT):
+    """Annotate the files simple-eng creates (CLAUDE.md, PROJECT.md, STATE.md, project documents) when they have no
+    annotation yet, so a fresh setup leaves the index complete. Skipped if the project area was removed."""
+    root = Path(root)
+    if PROJECT_AREA not in annotations.load_areas(root):
+        return []
+    purposes = dict(PURPOSES)
+    for doc in load_documents(plugin_root):
+        purposes[doc['path']] = f'Project document: the {doc["title"]}'
+    records = annotations.load(root)
+    items = [{'path': rel, 'purpose': purpose, 'area': PROJECT_AREA} for rel, purpose in purposes.items()
+             if rel not in records and (root / rel).is_file()]
+    return annotations.annotate_many(root, items) if items else []

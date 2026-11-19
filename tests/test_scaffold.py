@@ -18,12 +18,16 @@ class ScaffoldTests(unittest.TestCase):
     def test_fresh_project(self):
         changes = self.plan()
         self.assertEqual({c['action'] for c in changes.values()}, {'create'})
-        self.assertEqual(set(changes), {'.simple-eng/config.json', 'CLAUDE.md', 'docs/PROJECT.md', 'docs/STATE.md'})
+        self.assertEqual(set(changes), {'.simple-eng/config.json', '.simple-eng/annotations.jsonl', '.simple-eng/areas.json',
+                                       'CLAUDE.md', 'docs/PROJECT.md', 'docs/STATE.md'})
         self.assertFalse((self.root / 'CLAUDE.md').exists(), 'planning must not write')
         scaffold.apply_changes(self.root, changes.values())
         config = json.loads((self.root / '.simple-eng/config.json').read_text())
         self.assertIn('framework_version', config)
         self.assertIn('<!-- simple-eng:start version=', (self.root / 'CLAUDE.md').read_text())
+        self.assertEqual(config['stage'], 'prototype')
+        self.assertEqual(config['agent_threshold'], 15)
+        self.assertIn('package-lock.json', config['annotation_exclude'])
 
     def test_existing_claude_md_preserved_and_rerun_idempotent(self):
         (self.root / 'CLAUDE.md').write_text('# My project\n\nUse tabs.\n')

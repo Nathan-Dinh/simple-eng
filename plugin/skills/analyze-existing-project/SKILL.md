@@ -19,6 +19,15 @@ Treat contradictions between docs and code as drift candidates, not proof of int
 
 Then ask a small group of material questions the repository cannot answer: users and outcomes, expected usage, unrecorded constraints, operational expectations, data classification, ownership, target environments, success criteria. Say why each answer matters.
 
+## Build the annotation index
+
+The index (`.simple-eng/annotations.jsonl`) is how agents find their way around the project later, so build it as part of the analysis.
+
+1. Propose the business areas from the structure you found (for example `payments`, `auth`, `catalog`), each with a one-line description, and add them with `simple-eng areas add NAME "description"`. Keep the `project` area for docs, configuration, and tooling that belong to no single area.
+2. `simple-eng annotations --missing` lists the files to annotate. Split them into batches by directory and start one labor-tier subagent (`simple-eng:labor`) per batch. Each one reads its files and writes a JSON list of `{path, purpose, area, layer, symbols, links}` to `simple-eng annotate --from-json -`. Imports are parsed automatically; `links` holds only what the parser cannot see: a URL route to its view, code that reads a table, a view that renders a template.
+3. Layer is Presentation (endpoints, UI), Application (use cases), Domain (business rules), or Infrastructure (databases, external APIs, queues). Leave it empty for config, tests, and migrations, or list more than one where the framework combines layers (a Django model is Domain and Infrastructure).
+4. Run `simple-eng validate` until the index has no problems, then spot-check a few annotations yourself.
+
 ## Prioritize
 
 Identify the highest-impact gaps and whether they block a safe change. Do not turn discovery into an unsolicited redesign. When the project documents are missing, legacy, or out of date (`simple-eng status`), offer to draft them from the code with `simple-eng:project-docs` in existing-project mode. For architecture work, review quality priorities and the rationale recorded in the TRD first; for database work, look at the schema, migrations, tenancy, and tests; for features, use `simple-eng:feature-development`.
