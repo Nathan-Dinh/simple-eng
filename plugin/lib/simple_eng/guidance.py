@@ -14,7 +14,7 @@ from .projectmap import load_documents, load_map, split_record
 
 DESCRIPTION_LIMIT = 1536          # Claude Code truncates skill listings beyond this.
 BLOCK_BUDGET = 4800               # CLAUDE.md block, always loaded (~1.2k tokens).
-DESCRIPTIONS_BUDGET = 3200        # model-invocable skill descriptions, always loaded (~800 tokens).
+DESCRIPTIONS_BUDGET = 4400        # model-invocable skill descriptions, always loaded (~1.1k tokens); raised in 0.3 for the lead and five specialist agencies.
 LOAD_BUDGET = 12000               # one workflow skill plus the guidance it reads (~3k tokens).
 PLUGIN_REF = re.compile(r'\$\{CLAUDE_PLUGIN_ROOT\}/([\w./-]+)')
 SKILL_REF = re.compile(r'\$\{CLAUDE_SKILL_DIR\}/([\w./-]+)')

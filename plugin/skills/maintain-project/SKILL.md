@@ -1,5 +1,5 @@
 ---
-description: Fix bugs, upgrade dependencies, handle incidents, security reviews, migrations, refactors, and technical debt in an established project, with surgical changes and recorded verification.
+description: Fix bugs, upgrade dependencies, run migrations and refactors, and pay down technical debt in an established project, with surgical changes and recorded verification.
 needs: [commands]
 ---
 
@@ -7,7 +7,7 @@ needs: [commands]
 
 ## Establish scope and evidence
 
-Inspect the affected code, tests, docs, architecture boundaries, and dependency policy before changing files. For a bug, establish the observed and expected behavior and a reproduction; keep evidence apart from hypotheses. For an incident, preserve timestamps and sources and never invent a timeline. For security work, use the appropriate security review process. Ask only for information that changes the diagnosis or a safe fix.
+Inspect the affected code, tests, docs, architecture boundaries, and dependency policy before changing files. For a bug, establish the observed and expected behavior and a reproduction; keep evidence apart from hypotheses. Incident response belongs to `simple-eng:devops`, and security reviews to `simple-eng:security`; this skill makes the fix they hand over. Preserve timestamps and sources, and never invent a timeline. Ask only for information that changes the diagnosis or a safe fix.
 
 ## Assess impact
 

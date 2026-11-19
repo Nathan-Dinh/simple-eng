@@ -8,6 +8,7 @@ from simple_eng import guidance, markdown, projectmap
 
 CONSEQUENTIAL = 'changing a database schema'
 USER_ONLY = ('init',)
+SPECIALISTS = ('devops', 'security', 'performance', 'testing', 'legal-compliance')
 
 
 class PluginStructureTests(unittest.TestCase):
@@ -83,10 +84,19 @@ class PluginStructureTests(unittest.TestCase):
     def test_lead_routes_to_every_agency_skill(self):
         lead = (PLUGIN / 'skills/lead/SKILL.md').read_text()
         for name in ('initialize-project', 'analyze-existing-project', 'architecture-design', 'database-engineering',
-                     'ui-ux-design', 'feature-development', 'maintain-project', 'research-management'):
+                     'ui-ux-design', 'feature-development', 'maintain-project', 'research-management', *SPECIALISTS):
             self.assertIn(f'`simple-eng:{name}`', lead)
         for name in guidance.agents(PLUGIN):
             self.assertIn(f'`simple-eng:{name}`', lead)
+
+    def test_specialists_own_a_standard_and_share_the_review_policy(self):
+        for name in SPECIALISTS:
+            skill = (PLUGIN / f'skills/{name}/SKILL.md').read_text()
+            self.assertIn(f'reference/standards/{name}.md', skill, name)
+            self.assertIn('reference/policies/specialist-review.md', skill, name)
+            self.assertIn(f'(owner: ', (PLUGIN / f'reference/standards/{name}.md').read_text().splitlines()[0])
+        legal = (PLUGIN / 'skills/legal-compliance/SKILL.md').read_text()
+        self.assertIn('does not give legal advice', legal)
 
     def test_frontmatter_parser(self):
         meta, body = markdown.parse_frontmatter('---\ndescription: a: b\nneeds: [x, y]\nflag: true\n---\n\nBody\n')

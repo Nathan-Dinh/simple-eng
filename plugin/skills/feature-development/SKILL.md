@@ -25,7 +25,7 @@ Work out the contract or API, schema and migration, UI, state, integration bound
 
 ## 4. Test and implement
 
-Choose the verification approach with `${CLAUDE_SKILL_DIR}/tdd.md`. Follow the existing architecture and conventions and the Design standards (`${CLAUDE_PLUGIN_ROOT}/reference/standards/design.md`): no business rules in endpoints or UI, dependencies pointing inward, and errors translated at layer boundaries. Make the smallest complete change, and avoid unrelated refactoring. Record any significant deviation from the accepted design.
+Choose the verification approach with `${CLAUDE_SKILL_DIR}/tdd.md`, and write tests as you build; `simple-eng:testing` owns the overall test strategy and reviews coverage of critical paths. Follow the existing architecture and conventions and the Design standards (`${CLAUDE_PLUGIN_ROOT}/reference/standards/design.md`): no business rules in endpoints or UI, dependencies pointing inward, and errors translated at layer boundaries. Make the smallest complete change, and avoid unrelated refactoring. Record any significant deviation from the accepted design.
 
 ## 5. Verify
 

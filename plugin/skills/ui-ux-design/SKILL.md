@@ -11,7 +11,7 @@ Inspect the existing design system, components, tokens, navigation, and conventi
 
 ## Specify interaction behavior
 
-For each relevant journey, describe entry points, transitions, user actions, validation, and the success, loading, empty, error, disabled, and recovery states. Note keyboard and focus behavior, semantics, contrast, reduced motion, responsive behavior, and assistive-technology needs where they apply. Do not assume a compliance target: clarify it or mark it unknown.
+For each relevant journey, describe entry points, transitions, user actions, validation, and the success, loading, empty, error, disabled, and recovery states. Note keyboard and focus behavior, semantics, contrast, reduced motion, responsive behavior, and assistive-technology needs where they apply. Do not assume a compliance target: `simple-eng:legal-compliance` names the accessibility laws and conformance level that apply, and this skill implements them. Until it has, mark the target unknown.
 
 ## Design and implement
 
