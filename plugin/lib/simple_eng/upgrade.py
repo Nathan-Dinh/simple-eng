@@ -3,7 +3,7 @@ import json
 import shutil
 from pathlib import Path
 
-from . import PLUGIN_ROOT, plugin_version
+from . import PLUGIN_ROOT
 from .markdown import remove_section, section
 from .paths import CONFIG, PROJECT, STATE, load_config
 from .scaffold import BLOCK, _with_block, claude_md_block
@@ -66,9 +66,6 @@ def apply_cleanup(root, plugin_root=PLUGIN_ROOT):
     if found['block']:
         path = root / 'CLAUDE.md'
         path.write_text(_with_block(path.read_text(encoding='utf-8'), claude_md_block(plugin_root)), encoding='utf-8')
-        config = load_config(root)
-        config['framework_version'] = plugin_version(plugin_root)
-        (root / CONFIG).write_text(json.dumps(config, indent=2) + '\n', encoding='utf-8')
     return found
 
 

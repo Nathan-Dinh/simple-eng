@@ -1,12 +1,20 @@
 {
   "name": "simple-eng",
   "displayName": "simple-eng",
-  "version": "0.2.0",
-  "description": "Engineering lifecycle workflows with durable project state: project documents (PRD, TRD, App Flow, UI/UX brief, backend schema, implementation plan), decisions with typed approvals, evidence, and traceability that survive compaction and new sessions.",
+  "version": "0.3.0",
+  "description": "A consulting agency for building production-ready applications in Claude Code: a lead directing build agencies (Discovery, Design, Delivery) and specialist agencies (DevOps, Security, Performance, Testing, Legal and compliance), a committed annotation index of every file kept current by hooks, stage-aware architecture standards, approvals in chat, and project documents that survive compaction and new sessions.",
   "author": {
     "name": "Nathan Dinh"
   },
   "repository": "https://github.com/Nathan-Dinh/simple-eng",
   "license": "MIT",
-  "keywords": ["engineering", "workflow", "architecture", "decisions", "requirements", "context"]
+  "keywords": [
+    "engineering",
+    "workflow",
+    "architecture",
+    "agents",
+    "annotations",
+    "requirements",
+    "context"
+  ]
 }

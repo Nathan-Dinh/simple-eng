@@ -126,7 +126,8 @@ def build_context(root, plugin_root=PLUGIN_ROOT, limit=DEFAULT_LIMIT):
     installed, current = config.get('framework_version'), plugin_version(plugin_root)
     if installed and installed != current:
         head.append(f'The project was initialized with simple-eng {installed}; the plugin is {current}. '
-                    'Running /simple-eng:init again refreshes the CLAUDE.md block.')
+                    'Running `simple-eng init` again (dry run, then --apply after the user agrees) refreshes the CLAUDE.md block and '
+                    'adds files and settings the new version needs, such as the annotation index and areas.')
     header = '\n'.join(head)
     remaining = limit - len(header) - 40
     parts = [header]

@@ -46,6 +46,7 @@ class UpgradeTests(ProjectCase):
         self.assertIn('## Recent changes', self.read('docs/STATE.md'))
         self.assertNotIn('Decision owners', self.read('docs/PROJECT.md'))
         self.assertIn('## Stack', self.read('docs/PROJECT.md'))
+        self.assertNotIn('framework_version', json.dumps(upgrade.leftovers(self.root)))
 
     def test_decline_silences_offer_but_not_stale_block(self):
         self.make_old_project()

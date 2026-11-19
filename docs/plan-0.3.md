@@ -357,8 +357,8 @@ If the user declines, simply-eng records that in `.simple-eng/config.json`, leav
 7. Project-specific agents. Needs the annotation index (step 3) to define each agent's area.
 8. Release 0.3.0: README, plugin.json, and the upgrade note.
 
-## Open questions
+## Open questions (answered)
 
-- Which specific models fill the labor, implementation, and judgment tiers?
-- Which languages does the import parser support first? Python's standard library can parse Python imports; other languages need an extra parser library or a model fallback.
-- How large does an area get before simply-eng proposes an agent for it (for example, a file count)?
+- Which specific models fill the labor, implementation, and judgment tiers? Labor: `haiku`, implementation: `sonnet`, judgment: `opus`, as the model aliases on the plugin's `labor`, `implementer`, and `reviewer` agents. The lead is the main session, so its model is the user's choice.
+- Which languages does the import parser support first? Python (standard library `ast`) and JS/TS (relative `import`, `export ... from`, `import()`, and `require()` specifiers). Other languages have no parsed imports; their dependencies are recorded as other links.
+- How large does an area get before simply-eng proposes an agent for it? 15 annotated files, set by `agent_threshold` in `.simple-eng/config.json`.
