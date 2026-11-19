@@ -7,11 +7,11 @@ needs: [commands]
 
 ## Establish scope and evidence
 
-Inspect the affected code, tests, docs, architecture boundaries, dependency policy, and related DECs before changing files. For a bug, establish the observed and expected behavior and a reproduction; keep evidence apart from hypotheses. For an incident, preserve timestamps and sources and never invent a timeline. For security work, use the appropriate security review process. Ask only for information that changes the diagnosis or a safe fix.
+Inspect the affected code, tests, docs, architecture boundaries, and dependency policy before changing files. For a bug, establish the observed and expected behavior and a reproduction; keep evidence apart from hypotheses. For an incident, preserve timestamps and sources and never invent a timeline. For security work, use the appropriate security review process. Ask only for information that changes the diagnosis or a safe fix.
 
 ## Assess impact
 
-Identify the affected users, data, and components, compatibility and migration effects, reversibility, deployment and operations, privacy and security, and cost. Check for conflicts with accepted DECs or docs, and do not resolve consequential conflicts silently. If an accepted decision must change, propose a superseding DEC (`${CLAUDE_PLUGIN_ROOT}/reference/policies/decisions.md`).
+Identify the affected users, data, and components, compatibility and migration effects, reversibility, deployment and operations, privacy and security, and cost. Check for conflicts with the choices recorded in the project docs, and do not resolve consequential conflicts silently. If an approved choice must change, present the change and its trade-offs to the user and update the rationale in the doc once they agree (`${CLAUDE_PLUGIN_ROOT}/reference/policies/working-rules.md`).
 
 ## Change and verify
 

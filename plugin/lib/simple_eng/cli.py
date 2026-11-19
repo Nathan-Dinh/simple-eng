@@ -6,13 +6,12 @@ from pathlib import Path
 
 from . import PLUGIN_ROOT, plugin_version
 from .context import DEFAULT_LIMIT, build_context, record_files
-from .dashboard import render_dashboard
 from .guidance import budget_report, check_plugin
 from .hooks import HANDLERS, run as run_hook
 from .paths import is_initialized, project_root
 from .projectmap import render_status, status_report
-from .records import (CLASSIFICATIONS, LOW_AUTHORITY, add_decision, add_evidence, read_events,
-                      validate_events, validate_records)
+from .traceability import validate_traceability
+from .upgrade import apply_cleanup, decline_cleanup, describe, has_leftovers, leftovers
 from .scaffold import apply_changes, planned_changes, planned_docs
 
 
@@ -29,7 +28,7 @@ def cmd_validate(args):
         if not is_initialized(root):
             print(f'{root} is not a simple-eng project (run /simple-eng:init).', file=sys.stderr)
             return 1
-        errors = validate_records(root, record_files(root))
+        errors = validate_traceability(root, record_files(root))
         label = 'project records'
     for error in errors:
         print('ERROR:', error, file=sys.stderr)
@@ -83,41 +82,28 @@ def cmd_docs(args):
     return 0
 
 
-def cmd_add_decision(args):
-    record = add_decision(_root(args), decision_id=args.id, event=args.event, title=args.title, summary=args.summary,
-                          actor=args.actor, evidence=args.evidence or (), superseded_by=args.superseded_by)
-    print(f'Recorded {record["event"]} for {record["decision_id"]} ({record["event_id"]}). '
-          'This is not an approval; the decision owner approves by typing /simple-eng:approve.')
-    return 0
-
-
-def cmd_add_evidence(args):
-    path = add_evidence(_root(args), evidence_id=args.id, claim=args.claim, classification=args.classification,
-                        source=args.source, method=args.method, scope=args.scope)
-    print(f'Created {path.relative_to(_root(args))} (simple-eng does not verify the claim).')
-    return 0
-
-
-def cmd_show(args):
-    events = [e for e in read_events(_root(args)) if e.get('decision_id') == args.id]
-    if not events:
-        print(f'No events for {args.id}.', file=sys.stderr)
+def cmd_cleanup(args):
+    root = _root(args)
+    if not is_initialized(root):
+        print(f'{root} is not a simple-eng project (run /simple-eng:init).', file=sys.stderr)
         return 1
-    for e in events:
-        print(f'{e.get("timestamp")}  {e.get("event"):<11} {e.get("actor")}  [{e.get("source")}]  {e.get("summary", "")}'.rstrip())
-    print(f'Latest: {events[-1].get("event")}')
-    return 0
-
-
-def cmd_dashboard(args):
-    events = read_events(_root(args))
-    errors = validate_events(events)
-    if errors:
-        raise ValueError('; '.join(errors))
-    output = Path(args.output)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(render_dashboard(events), encoding='utf-8')
-    print('Wrote', output)
+    found = leftovers(root)
+    if not has_leftovers(found):
+        print('No simple-eng 0.2 leftovers found.')
+        return 0
+    if args.decline:
+        decline_cleanup(root)
+        print('Recorded that the cleanup was declined; the files stay as they are.')
+        return 0
+    print('\n'.join(describe(found)))
+    if found['notes']:
+        print('\nMove the findings from these research notes into their project documents first:\n'
+              + '\n'.join(f'  {note}' for note in found['notes']))
+    if args.apply:
+        apply_cleanup(root, PLUGIN_ROOT)
+        print(f'\nApplied to {root}.')
+    else:
+        print('\nDry run. Re-run with --apply after the user agrees, or --decline to keep the files.')
     return 0
 
 
@@ -153,29 +139,11 @@ def build_parser():
     p = sub.add_parser('docs', help='create missing project documents from their templates (dry run unless --apply)')
     p.add_argument('--apply', action='store_true')
     p.set_defaults(func=cmd_docs)
-    p = sub.add_parser('add-decision', help='record a low-authority decision event')
-    p.add_argument('--id', help='DEC-#### (default for proposals: next free ID)')
-    p.add_argument('--event', choices=LOW_AUTHORITY, default='proposed')
-    p.add_argument('--title', default='')
-    p.add_argument('--summary', default='')
-    p.add_argument('--actor', required=True)
-    p.add_argument('--evidence', action='append', metavar='EVD-####')
-    p.add_argument('--superseded-by', metavar='DEC-####')
-    p.set_defaults(func=cmd_add_decision)
-    p = sub.add_parser('add-evidence', help='create an evidence record')
-    p.add_argument('--id', help='EVD-#### (default: next free ID)')
-    p.add_argument('--claim', required=True)
-    p.add_argument('--classification', choices=CLASSIFICATIONS, required=True)
-    p.add_argument('--source', default='')
-    p.add_argument('--method', default='')
-    p.add_argument('--scope', default='')
-    p.set_defaults(func=cmd_add_evidence)
-    p = sub.add_parser('show', help='list the events for one decision')
-    p.add_argument('id', metavar='DEC-####')
-    p.set_defaults(func=cmd_show)
-    p = sub.add_parser('dashboard', help='write a static, read-only HTML decision report')
-    p.add_argument('--output', default='decision-dashboard.html')
-    p.set_defaults(func=cmd_dashboard)
+    p = sub.add_parser('cleanup', help='remove simple-eng 0.2 leftovers (dry run unless --apply)')
+    group = p.add_mutually_exclusive_group()
+    group.add_argument('--apply', action='store_true')
+    group.add_argument('--decline', action='store_true', help='keep the files and stop offering the cleanup')
+    p.set_defaults(func=cmd_cleanup)
     p = sub.add_parser('budget', help='print estimated token cost of the plugin guidance')
     p.set_defaults(func=cmd_budget)
     p = sub.add_parser('hook', help='hook entry point (used by hooks/hooks.json)')

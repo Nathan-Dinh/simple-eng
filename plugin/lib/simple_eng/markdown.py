@@ -5,7 +5,7 @@ COMMENT = re.compile(r'<!--.*?-->', re.DOTALL)
 HEADING = re.compile(r'^(#{1,6})\s+(.*?)\s*#*\s*$')
 TABLE_SEPARATOR = re.compile(r'^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$')
 EMPTY_LABEL = re.compile(r'^\s*[-*]\s*[^:]{1,80}:\s*$')
-PLACEHOLDER_ID = re.compile(r'^(REQ|QA|EVD|DEC|FEAT|TEST)-XXXX$')
+PLACEHOLDER_ID = re.compile(r'^(REQ|QA|FEAT|TEST)-XXXX$')
 NOT_APPLICABLE = re.compile(r'^\s*not applicable\s*:\s*(\S.*)$', re.IGNORECASE)
 
 
@@ -89,3 +89,21 @@ def not_applicable_reason(text):
         if m:
             return m.group(1).strip()
     return None
+
+
+def remove_section(text, heading):
+    """Remove the `heading` line (case-insensitive) and its body up to the next heading of the same or higher level.
+    Returns the text unchanged when the heading is absent."""
+    lines = text.splitlines(True)
+    wanted = heading.strip().lower()
+    for i, line in enumerate(lines):
+        m = HEADING.match(line.rstrip('\n'))
+        if m and m.group(2).strip().lower() == wanted:
+            level, end = len(m.group(1)), len(lines)
+            for j in range(i + 1, len(lines)):
+                n = HEADING.match(lines[j].rstrip('\n'))
+                if n and len(n.group(1)) <= level:
+                    end = j
+                    break
+            return ''.join(lines[:i] + lines[end:])
+    return text

@@ -11,8 +11,6 @@ Leave a section empty rather than guessing. -->
 
 ## Constraints
 
-## Decision owners
-
 ## Stack
 
 ## Commands

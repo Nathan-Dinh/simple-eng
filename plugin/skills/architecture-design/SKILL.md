@@ -1,6 +1,6 @@
 ---
-description: Design or change system architecture and choose technologies - boundaries, C4 views, alternatives against quality drivers, and decision records needing owner approval. Use for architecture, stack, or major component choices.
-needs: [problem-users, requirements, quality-priorities, constraints, decision-owners]
+description: Design or change system architecture and choose technologies - boundaries, C4 views, layers, and alternatives weighed against quality drivers, approved by the user in chat. Use for architecture, stack, or major component choices.
+needs: [problem-users, requirements, quality-priorities, constraints]
 ---
 
 # Architecture and technology design
@@ -9,7 +9,7 @@ Run `simple-eng status --workflow architecture-design` first. Investigate or ask
 
 ## Discover and bound
 
-Review requirements, quality scenarios, repository structure, current architecture, dependencies, deployment shape, and existing DECs. Confirm the system's purpose, actors, boundaries, external systems, constraints, and open assumptions. Identify only the capabilities the requirements support (APIs, background processing, real-time, integrations, storage, search, caching, queues, identity, observability, deployment). If a critical input is missing, say so before choosing a component.
+Review requirements, quality scenarios, repository structure, current architecture, dependencies, deployment shape, and the rationale already recorded in the TRD. Confirm the system's purpose, actors, boundaries, external systems, constraints, and open assumptions. Identify only the capabilities the requirements support (APIs, background processing, real-time, integrations, storage, search, caching, queues, identity, observability, deployment). If a critical input is missing, say so before choosing a component.
 
 ## Model
 
@@ -26,12 +26,12 @@ Document trust boundaries, important data flows, integration contracts, failure 
 
 Follow `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/technology-selection.md`, and check priorities against `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/quality-attributes.md`. Prefer the existing technologies unless evidence justifies a change. Do not introduce a service, abstraction, or dependency without a requirement.
 
-Propose each consequential choice as a DEC (`${CLAUDE_PLUGIN_ROOT}/reference/policies/decisions.md`) with alternatives, evidence, and consequences. Ask the decision owner to type `/simple-eng:approve DEC-####`; until they do, the choice stays proposed. Where a choice also shapes data or security boundaries, assess checkpoint D as well as C.
+Present each consequential choice in chat with its alternatives, evidence, and consequences, and wait for the user's go-ahead (`${CLAUDE_PLUGIN_ROOT}/reference/policies/working-rules.md`); until then it stays proposed. Once approved, record what was chosen, over what, and why under "Stack and technology choices" in the TRD. Where a choice also shapes data or security boundaries, assess checkpoint D as well as C.
 
 ## Verify and maintain
 
-Trace decisions to requirements, scenarios, and evidence. Define how each relevant quality will be evaluated, and do not call an attribute achieved without a check. When an accepted decision conflicts with new evidence, propose a superseding DEC.
+Trace choices to requirements, scenarios, and evidence. Define how each relevant quality will be evaluated, and do not call an attribute achieved without a check. When an approved choice conflicts with new evidence, present the change and its trade-offs to the user, and update the rationale in the TRD once they agree.
 
 ## Record and hand off
 
-Update `docs/STATE.md`: checkpoint C status, pending DECs, open questions, next step.
+Update `docs/STATE.md`: checkpoint C status, choices waiting for the user, open questions, next step.

@@ -4,9 +4,9 @@
 - Last updated:
 - Sources:
 
-<!-- What the product must do and why. Problem, scope, constraints, and decision owners live in docs/PROJECT.md: link
+<!-- What the product must do and why. Problem, scope, and constraints live in docs/PROJECT.md: link
 those sections instead of restating them. Label each claim (verified, user-provided, inferred, proposed, unknown) and
-give each requirement a status (open, accepted, deferred, dropped); both scales are defined in the evidence policy.
+give each requirement a status (open, accepted, deferred, dropped); both scales are defined in the working rules.
 Mark unknowns instead of guessing. Status becomes reviewed only when the user says they reviewed it. -->
 
 ## Goals and success metrics

@@ -1,6 +1,6 @@
 ---
 description: Design or change persistent data - entities, cardinality, access patterns, tenancy and authorization isolation, retention, migrations, and recovery. Use for schema, migration, database choice, or multi-tenant data work.
-needs: [requirements, stack, decision-owners]
+needs: [requirements, stack]
 ---
 
 # Database engineering
@@ -20,14 +20,14 @@ Answer what you can from the repository and label the rest. Surface conflicts (f
 
 Compare relational, document, key-value, graph, or other models only when access patterns and consistency needs justify it, and keep the established technology unless a change is justified. Document entities, ownership, cardinality, keys, foreign keys, constraints, normalization and denormalization choices, indexes tied to real queries, transaction consistency, data lifecycle, and the access-control model. Add an ER diagram where it helps. Record it, with the API surface over the data, in the Backend Schema, `docs/backend/schema.md`, using `${CLAUDE_PLUGIN_ROOT}/reference/templates/backend-schema.md`.
 
-For multi-tenant systems, define how tenant identity is established, propagated, authorized, and enforced at every read and write boundary, including background jobs, admin flows, exports, and caches. A tenant column alone does not provide isolation. Tenant and security design is consequential: propose it as a DEC (`${CLAUDE_PLUGIN_ROOT}/reference/policies/decisions.md`) and get the owner's approval.
+For multi-tenant systems, define how tenant identity is established, propagated, authorized, and enforced at every read and write boundary, including background jobs, admin flows, exports, and caches. A tenant column alone does not provide isolation. Tenant and security design, and any schema change, are consequential: present them in chat with their trade-offs and wait for the user's go-ahead (`${CLAUDE_PLUGIN_ROOT}/reference/policies/working-rules.md`). Record the approved choice and why in the Backend Schema.
 
 ## Migrate and verify
 
-Describe migration order, compatibility with running application versions, backfill and locking risks, validation, rollback or forward recovery, backup implications, and the test plan. Do not create or run production migrations until the schema and security decisions are approved.
+Describe migration order, compatibility with running application versions, backfill and locking risks, validation, rollback or forward recovery, backup implications, and the test plan. Do not create or run production migrations until the user has approved the schema and security design.
 
-Verify constraints and access boundaries with tests, including negative cross-tenant cases where they apply. Record the exact checks that ran and their limits, and link schema decisions to requirements, evidence, DECs, and tests.
+Verify constraints and access boundaries with tests, including negative cross-tenant cases where they apply. Record the exact checks that ran and their limits, and link schema choices to requirements and tests.
 
 ## Record and hand off
 
-Update `docs/STATE.md`: checkpoint D status, pending DECs, migration risks still open, next step.
+Update `docs/STATE.md`: checkpoint D status, choices waiting for the user, migration risks still open, next step.

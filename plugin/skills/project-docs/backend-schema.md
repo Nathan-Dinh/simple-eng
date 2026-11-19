@@ -9,6 +9,6 @@
 
 **Existing project.** Read the schema, migrations, ORM models, API route handlers or OpenAPI and GraphQL definitions, and authorization middleware. Record entities and endpoints as verified with the paths. Access patterns inferred from queries are labeled inferred.
 
-Tie each entity, index, and endpoint to a requirement or access pattern. Surface conflicts, such as retention obligations against deletion expectations, instead of choosing silently. Schema, tenancy, and security choices are consequential: design them with `simple-eng:database-engineering`, which proposes the DECs, and assess checkpoint D.
+Tie each entity, index, and endpoint to a requirement or access pattern. Surface conflicts, such as retention obligations against deletion expectations, instead of choosing silently. Schema, tenancy, and security choices are consequential: design them with `simple-eng:database-engineering`, which presents them to the user for approval, and assess checkpoint D.
 
 If the project stores no persistent data and has no backend, write `Not applicable: <reason>` under "Entities and cardinality".

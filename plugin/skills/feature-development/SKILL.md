@@ -9,7 +9,7 @@ needs: [problem-users, commands]
 
 Establish nine items for every feature: the user problem, actors, expected behavior, success measure, edge cases, affected components, required data, dependencies, and security and privacy implications. An item that does not apply is `Not applicable: <reason>`.
 
-Answer what you can first from the existing code, DECs, and project documents (PRD, App Flow, TRD, Backend Schema). They are sources for the items, not a substitute for them. A document claim keeps its own label (`${CLAUDE_PLUGIN_ROOT}/reference/policies/evidence.md`) and its path as source; an inferred claim, or one from a `draft` document, is not confirmed.
+Answer what you can first from the existing code and the project documents (PRD, App Flow, TRD, Backend Schema). They are sources for the items, not a substitute for them. A document claim keeps its own label (`${CLAUDE_PLUGIN_ROOT}/reference/policies/working-rules.md`) and its path as source; an inferred claim, or one from a `draft` document, is not confirmed.
 
 Then ask a small group of consequential questions, only about items that are still unknown and about conflicts between the documents, the code, and the request. Present each conflict with its options and say why each answer matters; do not resolve it silently.
 
@@ -21,7 +21,7 @@ For a substantial feature, write a short spec at `docs/features/FEAT-####.md` fr
 
 ## 3. Design
 
-Work out the contract or API, schema and migration, UI, state, integration boundaries, error behavior, security, tests, rollout, and rollback. Hand off to `simple-eng:architecture-design`, `simple-eng:database-engineering`, or `simple-eng:ui-ux-design` where their scope applies. Check for conflicts with DECs, and propose consequential choices as DECs before implementing them.
+Work out the contract or API, schema and migration, UI, state, integration boundaries, error behavior, security, tests, rollout, and rollback. Hand off to `simple-eng:architecture-design`, `simple-eng:database-engineering`, or `simple-eng:ui-ux-design` where their scope applies. Check for conflicts with the choices recorded in the project docs, and get the user's go-ahead in chat on consequential choices before implementing them.
 
 ## 4. Test and implement
 

@@ -3,13 +3,13 @@ from pathlib import Path
 
 from . import PLUGIN_ROOT, plugin_version
 from .markdown import EMPTY_LABEL, TABLE_SEPARATOR, strip_comments
-from .paths import CONFIG, DECISIONS, PROJECT, STATE, is_initialized, load_config
+from .paths import CONFIG, PROJECT, STATE, is_initialized, load_config
 from .projectmap import area_record, documents_line, load_map, split_record, status_report, summary_line
-from .records import pending_decisions, read_events, validate_records
+from .traceability import validate_traceability
+from .upgrade import context_lines as upgrade_lines
 
 DEFAULT_LIMIT = 6000
 HARD_LIMIT = 9000  # Claude Code moves hook output over 10,000 characters to a file.
-MAX_PENDING = 10
 
 NOT_INITIALIZED = ('simple-eng: this project has not been initialized (no {config}). '
                    'The user can run /simple-eng:init to set up project state, or ignore this if the project does not use it.')
@@ -85,20 +85,10 @@ def build_context(root, plugin_root=PLUGIN_ROOT, limit=DEFAULT_LIMIT):
         config = {}
         head.append(f'Knowledge areas unavailable: {exc}')
     try:
-        pending = pending_decisions(read_events(root))
-    except ValueError:
-        pending = {}
-    if pending:
-        items = [f'{dec} "{e.get("title", "")}" (latest: {e.get("event")}, {str(e.get("timestamp", ""))[:10]})'
-                 for dec, e in sorted(pending.items())]
-        # Capped so a long backlog cannot crowd STATE.md out of the context.
-        more = f'; and {len(items) - MAX_PENDING} more in {DECISIONS}/' \
-            if len(items) > MAX_PENDING else ''
-        head.append('Decisions waiting for the decision owner (/simple-eng:approve or /simple-eng:reject): '
-                    + '; '.join(items[:MAX_PENDING]) + more + '.')
-    else:
-        head.append('No decisions are waiting for approval.')
-    errors = validate_records(root, record_files(root, plugin_root))
+        head.extend(upgrade_lines(root, config))
+    except (OSError, ValueError) as exc:
+        head.append(f'Could not check for simple-eng 0.2 leftovers: {exc}')
+    errors = validate_traceability(root, record_files(root, plugin_root), plugin_root)
     if errors:
         shown = '; '.join(errors[:5]) + (f'; and {len(errors) - 5} more' if len(errors) > 5 else '')
         head.append(f'`simple-eng validate` reports {len(errors)} problem(s): {shown}.')

@@ -3,11 +3,11 @@ import json
 import re
 import unittest
 
-from helpers import PLUGIN, plugin_copy, records
+from helpers import PLUGIN, plugin_copy, traceability
 from simple_eng import guidance, markdown, projectmap
 
-CONSEQUENTIAL = 'production security changes'
-USER_ONLY = ('init', 'approve', 'reject')
+CONSEQUENTIAL = 'changing a database schema'
+USER_ONLY = ('init',)
 
 
 class PluginStructureTests(unittest.TestCase):
@@ -24,10 +24,10 @@ class PluginStructureTests(unittest.TestCase):
 
     def test_hooks_cover_each_handler(self):
         hooks = json.loads((PLUGIN / 'hooks/hooks.json').read_text())['hooks']
-        self.assertEqual(set(hooks), {'SessionStart', 'UserPromptExpansion', 'PreToolUse'})
+        self.assertEqual(set(hooks), {'SessionStart'})
         self.assertIn('compact', hooks['SessionStart'][0]['matcher'])
         commands = json.dumps(hooks)
-        for name in ('session-start', 'prompt-expansion', 'pre-tool-use'):
+        for name in ('session-start',):
             self.assertIn(name, commands)
 
     def test_user_only_skills(self):
@@ -45,10 +45,10 @@ class PluginStructureTests(unittest.TestCase):
 
     def test_claim_labels_agree(self):
         block = (PLUGIN / 'reference/templates/claude-md-block.md').read_text()
-        policy = (PLUGIN / 'reference/policies/evidence.md').read_text()
-        policy_labels = tuple(re.findall(r'^- \*\*([a-z-]+)\*\*:', policy, re.MULTILINE))
-        self.assertEqual(policy_labels, records.CLASSIFICATIONS)
-        for label in records.CLASSIFICATIONS:
+        policy = (PLUGIN / 'reference/policies/working-rules.md').read_text()
+        policy_labels = tuple(re.findall(r'^\| ([a-z-]+) \|', policy, re.MULTILINE))
+        self.assertEqual(policy_labels, traceability.FACT_LABELS)
+        for label in traceability.FACT_LABELS:
             self.assertIn(label, block)
 
     def test_checkpoints_present(self):
@@ -72,13 +72,7 @@ class PluginStructureTests(unittest.TestCase):
     def test_block_and_state_template_have_no_real_ids(self):
         documents = [f'reference/templates/{d["template"]}' for d in projectmap.load_documents(PLUGIN)]
         for rel in ('reference/templates/claude-md-block.md', 'reference/templates/state.md', *documents):
-            self.assertEqual(records.ANY_ID.findall((PLUGIN / rel).read_text()), [], rel)
-
-    def test_event_schema_matches_validator(self):
-        schema = json.loads((PLUGIN / 'reference/decision-event.schema.json').read_text())
-        self.assertEqual(set(schema['properties']), records.FIELDS)
-        self.assertEqual(set(schema['required']), records.REQUIRED)
-        self.assertEqual(tuple(schema['properties']['event']['enum']), records.EVENTS)
+            self.assertEqual(traceability.ANY_ID.findall((PLUGIN / rel).read_text()), [], rel)
 
     def test_frontmatter_parser(self):
         meta, body = markdown.parse_frontmatter('---\ndescription: a: b\nneeds: [x, y]\nflag: true\n---\n\nBody\n')
@@ -92,7 +86,7 @@ class BrokenPluginTests(unittest.TestCase):
             'unknown area': ('skills/status/SKILL.md', lambda t: t.replace('description:', 'needs: [nope]\ndescription:', 1), 'unknown area'),
             'missing reference': ('skills/maintain-project/SKILL.md', lambda t: t + '\nSee ${CLAUDE_PLUGIN_ROOT}/policies/gone.md\n', 'missing file'),
             'long description': ('skills/status/SKILL.md', lambda t: t.replace('description: ', 'description: ' + 'x' * 1600, 1), 'limit 1536'),
-            'over budget': ('reference/policies/evidence.md', lambda t: t + 'y' * 13000, 'budget'),
+            'over budget': ('reference/policies/working-rules.md', lambda t: t + 'y' * 13000, 'budget'),
             'map heading': ('reference/templates/project.md', lambda t: t.replace('## Stack', '## Tech'), 'heading "Stack"'),
             'document template': ('reference/project-map.json', lambda t: t.replace('"template": "app-flow.md", "area"', '"template": "gone.md", "area"')
                                   .replace('"template": "app-flow.md",\n      "area"', '"template": "gone.md",\n      "area"'), 'template gone.md not found'),

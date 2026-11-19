@@ -27,10 +27,6 @@ and add new "Recent changes" lines at the top of that section. -->
 | Question | Why it matters | Asked | Blocks |
 |---|---|---|---|
 
-## Pending decisions
-
-<!-- DEC IDs waiting for the decision owner. `simple-eng context` also lists them from the event log. -->
-
 ## Recent changes
 
 <!-- Newest first, one line each: date — what changed — record. -->

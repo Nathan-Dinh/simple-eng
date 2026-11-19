@@ -7,7 +7,6 @@ import unittest
 from pathlib import Path
 
 from helpers import PLUGIN
-from simple_eng.dashboard import render_dashboard
 
 CLI = PLUGIN / 'bin/simple-eng'
 
@@ -37,15 +36,7 @@ class CliTests(unittest.TestCase):
         self.assertIn('- stack: missing', self.cli('status').stdout)
         report = json.loads(self.cli('status', '--json', '--workflow', 'feature-development').stdout)
         self.assertIn('commands', report['blocking'])
-        self.cli('add-evidence', '--claim', 'Python project', '--classification', 'verified', '--source', 'pyproject.toml')
-        out = self.cli('add-decision', '--title', 'Use SQLite', '--summary', 'small data', '--actor', 'claude', '--evidence', 'EVD-0001').stdout
-        self.assertIn('DEC-0001', out)
-        self.assertIn('not an approval', out)
-        self.assertNotEqual(self.cli('add-decision', '--id', 'DEC-0001', '--event', 'approved', '--actor', 'claude', check=False).returncode, 0)
-        self.assertIn('Latest: proposed', self.cli('show', 'DEC-0001').stdout)
-        self.assertIn('DEC-0001 "Use SQLite"', self.cli('context').stdout)
-        self.cli('dashboard', '--output', str(self.root / 'dash.html'))
-        self.assertIn('Use SQLite', (self.root / 'dash.html').read_text())
+        self.assertIn('No simple-eng 0.2 leftovers', self.cli('cleanup').stdout)
 
     def test_docs_command(self):
         self.assertNotEqual(self.cli('docs', check=False).returncode, 0)
@@ -61,24 +52,24 @@ class CliTests(unittest.TestCase):
         self.assertIn('unchanged  docs/product/PRD.md', self.cli('docs').stdout)
 
     def test_hook_entry_points(self):
+        self.assertEqual(self.cli('hook', 'session-start', stdin='{}').stdout, '')
         self.cli('init', '--apply')
-        denied = self.cli('hook', 'pre-tool-use', stdin=json.dumps(
-            {'tool_name': 'Write', 'tool_input': {'file_path': str(self.root / 'decision-log/events.jsonl')}})).stdout
-        self.assertEqual(json.loads(denied)['hookSpecificOutput']['permissionDecision'], 'deny')
-        self.assertEqual(self.cli('hook', 'pre-tool-use', stdin='{"tool_name": "Read"}').stdout, '')
         self.assertIn('simple-eng project context', self.cli('hook', 'session-start', stdin='{}').stdout)
+
+    def test_cleanup_command(self):
+        self.cli('init', '--apply')
+        (self.root / 'docs/evidence/records').mkdir(parents=True)
+        (self.root / 'docs/evidence/records/EVD-0001.md').write_text('# EVD-0001\n')
+        out = self.cli('cleanup').stdout
+        self.assertIn('delete     docs/evidence/', out)
+        self.assertIn('Dry run', out)
+        self.assertTrue((self.root / 'docs/evidence').exists())
+        self.cli('cleanup', '--apply')
+        self.assertFalse((self.root / 'docs/evidence').exists())
 
     def test_plugin_validation_and_budget(self):
         self.assertIn('Validation passed for plugin guidance', self.cli('validate', '--plugin').stdout)
         self.assertIn('initialize-project', self.cli('budget').stdout)
-
-
-class DashboardTests(unittest.TestCase):
-    def test_escapes_html(self):
-        page = render_dashboard([{'decision_id': 'DEC-0001', 'event': 'proposed', 'actor': 'ai',
-                                  'timestamp': '2026-01-01T00:00:00+00:00', 'title': '<script>alert(1)</script>', 'summary': 't'}])
-        self.assertIn('&lt;script&gt;', page)
-        self.assertNotIn('<script>alert(1)</script>', page)
 
 
 if __name__ == '__main__':

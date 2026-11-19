@@ -11,7 +11,7 @@ from unittest import mock
 PLUGIN = Path(__file__).resolve().parents[1] / 'plugin'
 sys.path.insert(0, str(PLUGIN / 'lib'))
 
-from simple_eng import records, scaffold  # noqa: E402
+from simple_eng import scaffold, traceability  # noqa: E402
 
 
 class ProjectCase(unittest.TestCase):
@@ -40,19 +40,6 @@ class ProjectCase(unittest.TestCase):
 
     def read(self, rel):
         return (self.root / rel).read_text(encoding='utf-8')
-
-    def events(self):
-        return records.read_events(self.root)
-
-    def propose(self, title='Use PostgreSQL', **kw):
-        return records.add_decision(self.root, title=title, summary='s', actor='claude', **kw)
-
-
-def event(**overrides):
-    base = {'event_id': 'EVT-' + 'a' * 32, 'decision_id': 'DEC-0001', 'event': 'proposed',
-            'timestamp': '2026-01-01T00:00:00+00:00', 'actor': 'claude', 'source': records.CLI_SOURCE}
-    base.update(overrides)
-    return base
 
 
 def plugin_copy(test):

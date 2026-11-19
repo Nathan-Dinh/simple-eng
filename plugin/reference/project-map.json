@@ -27,14 +27,6 @@
       "applies_when": null
     },
     {
-      "id": "decision-owners",
-      "question": "Who may approve consequential decisions (architecture, security, sensitive data, cost, destructive actions)?",
-      "record": "docs/PROJECT.md#Decision owners",
-      "template": "project.md",
-      "source": "ask",
-      "applies_when": null
-    },
-    {
       "id": "stack",
       "question": "Which languages, frameworks, data stores, and major dependencies does the project use?",
       "record": "docs/PROJECT.md#Stack",

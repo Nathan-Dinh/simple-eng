@@ -49,7 +49,7 @@ class ProjectMapTests(ProjectCase):
 
     def test_workflow_blocking(self):
         _, report = statuses(self.root, 'architecture-design')
-        self.assertEqual(set(report['blocking']), {'problem-users', 'requirements', 'quality-priorities', 'constraints', 'decision-owners'})
+        self.assertEqual(set(report['blocking']), {'problem-users', 'requirements', 'quality-priorities', 'constraints'})
         self.assertIn('Missing areas that block architecture-design', projectmap.render_status(report))
         with self.assertRaises(ValueError):
             projectmap.status_report(self.root, workflow='no-such-skill')

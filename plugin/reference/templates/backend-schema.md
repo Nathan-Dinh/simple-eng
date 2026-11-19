@@ -5,8 +5,8 @@
 - Sources:
 
 <!-- Persistent data and the backend contracts over it. Tie each entity, index, and endpoint to a requirement or
-access pattern. Schema, tenancy, and security choices are consequential: link the DEC and keep them proposed until
-it is approved. If the project stores no persistent data and has no backend, write "Not applicable: <reason>"
+access pattern. Schema, tenancy, and security choices are consequential: keep them proposed until the user
+approves them, then record what was chosen, over what, and why. If the project stores no persistent data and has no backend, write "Not applicable: <reason>"
 under Entities and cardinality. -->
 
 ## Requirements and access patterns

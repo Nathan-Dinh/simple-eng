@@ -18,7 +18,7 @@ LOAD_BUDGET = 12000               # one workflow skill plus the guidance it read
 PLUGIN_REF = re.compile(r'\$\{CLAUDE_PLUGIN_ROOT\}/([\w./-]+)')
 SKILL_REF = re.compile(r'\$\{CLAUDE_SKILL_DIR\}/([\w./-]+)')
 LINK = re.compile(r'\]\((?!https?://|#|mailto:)([^)#\s]+)')
-GUIDANCE_DIRS = ('reference/policies', 'reference/rubrics')
+GUIDANCE_DIRS = ('reference/policies', 'reference/rubrics', 'reference/standards')
 
 
 def skills(plugin_root=PLUGIN_ROOT):
@@ -105,7 +105,7 @@ def check_plugin(plugin_root=PLUGIN_ROOT):
         for need in meta.get('needs', []):
             if need not in area_ids:
                 errors.append(f'{where}: needs unknown area {need!r}')
-    for path in sorted([*root.glob('skills/**/*.md'), *root.glob('reference/policies/*.md'), *root.glob('reference/rubrics/*.md')]):
+    for path in sorted([*root.glob('skills/**/*.md'), *root.glob('reference/policies/*.md'), *root.glob('reference/rubrics/*.md'), *root.glob('reference/standards/*.md')]):
         for ref in _refs(path, root):
             if not ref.exists():
                 errors.append(f'{path.relative_to(root)}: reference to missing file {ref}')

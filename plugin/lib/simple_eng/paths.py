@@ -7,9 +7,8 @@ from pathlib import Path
 CONFIG = '.simple-eng/config.json'
 PROJECT = 'docs/PROJECT.md'
 STATE = 'docs/STATE.md'
-LOG = 'decision-log/events.jsonl'
-DECISIONS = 'docs/decisions/records'
-EVIDENCE = 'docs/evidence/records'
+ANNOTATIONS = '.simple-eng/annotations.jsonl'
+AREAS = '.simple-eng/areas.json'
 DOCS = 'docs'
 
 

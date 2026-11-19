@@ -5,8 +5,8 @@
 - Sources:
 
 <!-- How the system is built to meet the PRD. Use only the sections that apply and keep it consistent with the
-implementation. docs/PROJECT.md#Stack lists what is used; this document says why, and links the DEC behind each
-consequential choice. A choice stays proposed until its DEC is approved. Quality priorities and scenarios live in
+implementation. docs/PROJECT.md#Stack lists what is used; this document says why: for each consequential
+choice, what was chosen, over what, and why. A choice stays proposed until the user approves it. Quality priorities and scenarios live in
 docs/architecture/quality-attributes.md. Add a Mermaid diagram only when it shows something the prose does not,
 and only with verified content. -->
 
@@ -16,7 +16,7 @@ and only with verified content. -->
 
 ## Stack and technology choices
 
-| Area | Choice | Status and DEC | Rationale and requirement |
+| Area | Choice | Status | Chosen over, why, and requirement |
 |---|---|---|---|
 
 ## System context

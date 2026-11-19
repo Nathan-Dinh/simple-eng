@@ -8,4 +8,4 @@ Start only once the PRD's requirements are understood. If no problem or user is 
 
 **Existing project.** Read dependency manifests, build and CI files, infrastructure and deployment configuration, entry points, and service boundaries, and record the current architecture as verified with the paths. A config file shows intent, not deployed state. Note drift between the docs and the code.
 
-For the architecture and each meaningful technology choice, use `simple-eng:architecture-design`; it handles C4 views, alternatives, and DEC proposals. In "Stack and technology choices", mark each choice proposed until its DEC is approved. When the TRD is done, assess checkpoint C.
+For the architecture and each meaningful technology choice, use `simple-eng:architecture-design`; it handles C4 views, alternatives, and approvals. In "Stack and technology choices", mark each choice proposed until the user approves it, then record what was chosen, over what, and why. When the TRD is done, assess checkpoint C.
