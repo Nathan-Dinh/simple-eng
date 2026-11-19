@@ -9,7 +9,7 @@ needs: [problem-users, commands]
 
 Establish nine items for every feature: the user problem, actors, expected behavior, success measure, edge cases, affected components, required data, dependencies, and security and privacy implications. An item that does not apply is `Not applicable: <reason>`.
 
-Answer what you can first from the existing code and the project documents (PRD, App Flow, TRD, Backend Schema). They are sources for the items, not a substitute for them. A document claim keeps its own label (`${CLAUDE_PLUGIN_ROOT}/reference/policies/working-rules.md`) and its path as source; an inferred claim, or one from a `draft` document, is not confirmed.
+Answer what you can first from the existing code and the project documents (PRD, App Flow, TRD, Backend Schema). They are sources for the items, not a substitute for them. A document claim keeps its own label (the simple-eng rules in CLAUDE.md) and its path as source; an inferred claim, or one from a `draft` document, is not confirmed.
 
 Then ask a small group of consequential questions, only about items that are still unknown and about conflicts between the documents, the code, and the request. Present each conflict with its options and say why each answer matters; do not resolve it silently.
 
@@ -25,7 +25,7 @@ Work out the contract or API, schema and migration, UI, state, integration bound
 
 ## 4. Test and implement
 
-Choose the verification approach with `${CLAUDE_SKILL_DIR}/tdd.md`. Follow the existing architecture and conventions, make the smallest complete change, and avoid unrelated refactoring. Record any significant deviation from the accepted design.
+Choose the verification approach with `${CLAUDE_SKILL_DIR}/tdd.md`. Follow the existing architecture and conventions and the Design standards (`${CLAUDE_PLUGIN_ROOT}/reference/standards/design.md`): no business rules in endpoints or UI, dependencies pointing inward, and errors translated at layer boundaries. Make the smallest complete change, and avoid unrelated refactoring. Record any significant deviation from the accepted design.
 
 ## 5. Verify
 

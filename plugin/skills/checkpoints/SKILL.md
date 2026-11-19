@@ -20,7 +20,7 @@ A checkpoint makes a consequential step traceable; it is not ceremony for minor 
 ## At each checkpoint
 
 1. State the question being decided.
-2. Summarize the evidence and its limits, with fact labels (`${CLAUDE_PLUGIN_ROOT}/reference/policies/working-rules.md`). Readiness (enough evidence) is separate from approval (the user's go-ahead).
+2. Summarize the evidence and its limits, with fact labels (the simple-eng rules in CLAUDE.md). Readiness (enough evidence) is separate from approval (the user's go-ahead).
 3. Identify conflicts, unknowns, options, and consequences.
 4. For a consequential step, present the choice and its trade-offs in chat and wait for the user's go-ahead. The user may approve, ask for alternatives, or defer.
 5. Record the outcome in the "Checkpoints" table in `docs/STATE.md` with a link to the project doc that holds the evidence and rationale, plus the next action. A completed checklist or a recommendation is not approval.

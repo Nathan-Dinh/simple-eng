@@ -9,6 +9,7 @@ from pathlib import Path
 from . import PLUGIN_ROOT
 from .context import DEFAULT_LIMIT, HARD_LIMIT
 from .markdown import headings, parse_frontmatter
+from .paths import STAGES
 from .projectmap import load_documents, load_map, split_record
 
 DESCRIPTION_LIMIT = 1536          # Claude Code truncates skill listings beyond this.
@@ -19,6 +20,8 @@ PLUGIN_REF = re.compile(r'\$\{CLAUDE_PLUGIN_ROOT\}/([\w./-]+)')
 SKILL_REF = re.compile(r'\$\{CLAUDE_SKILL_DIR\}/([\w./-]+)')
 LINK = re.compile(r'\]\((?!https?://|#|mailto:)([^)#\s]+)')
 GUIDANCE_DIRS = ('reference/policies', 'reference/rubrics', 'reference/standards')
+MODELS = ('haiku', 'sonnet', 'opus')
+STAGE_TAG = re.compile(r'^- \[([^\]]+)\]', re.MULTILINE)
 
 
 def skills(plugin_root=PLUGIN_ROOT):
@@ -26,6 +29,14 @@ def skills(plugin_root=PLUGIN_ROOT):
     for path in sorted((Path(plugin_root) / 'skills').glob('*/SKILL.md')):
         meta, body = parse_frontmatter(path.read_text(encoding='utf-8'))
         found[path.parent.name] = {'path': path, 'meta': meta, 'body': body}
+    return found
+
+
+def agents(plugin_root=PLUGIN_ROOT):
+    found = {}
+    for path in sorted((Path(plugin_root) / 'agents').glob('*.md')):
+        meta, body = parse_frontmatter(path.read_text(encoding='utf-8'))
+        found[path.stem] = {'path': path, 'meta': meta, 'body': body}
     return found
 
 
@@ -98,6 +109,8 @@ def check_plugin(plugin_root=PLUGIN_ROOT):
             errors.append(f'{where}: description is required')
         if len(description) > DESCRIPTION_LIMIT:
             errors.append(f'{where}: description is {len(description)} characters (limit {DESCRIPTION_LIMIT})')
+        if ': ' in description:
+            errors.append(f'{where}: description must not contain ": " (YAML reads it as a mapping); use " - "')
         if 'disable-model-invocation' in meta and not isinstance(meta['disable-model-invocation'], bool):
             errors.append(f'{where}: disable-model-invocation must be true or false')
         if not meta.get('disable-model-invocation'):
@@ -105,7 +118,21 @@ def check_plugin(plugin_root=PLUGIN_ROOT):
         for need in meta.get('needs', []):
             if need not in area_ids:
                 errors.append(f'{where}: needs unknown area {need!r}')
-    for path in sorted([*root.glob('skills/**/*.md'), *root.glob('reference/policies/*.md'), *root.glob('reference/rubrics/*.md'), *root.glob('reference/standards/*.md')]):
+    for name, agent in agents(root).items():
+        meta, where = agent['meta'], f'agents/{name}.md'
+        if meta.get('name') != name:
+            errors.append(f'{where}: name must match the file name ({name})')
+        if not meta.get('description') or ': ' in str(meta.get('description')):
+            errors.append(f'{where}: needs a description without ": "')
+        if meta.get('model') not in MODELS:
+            errors.append(f'{where}: model must be one of {", ".join(MODELS)}')
+    for path in sorted(root.glob('reference/standards/*.md')):
+        tags = STAGE_TAG.findall(path.read_text(encoding='utf-8'))
+        if not tags:
+            errors.append(f'{path.relative_to(root)}: no rules tagged with a stage')
+        for tag in sorted(set(tags) - {'all', *STAGES}):
+            errors.append(f'{path.relative_to(root)}: unknown stage tag [{tag}] (use all, {", ".join(STAGES)})')
+    for path in sorted([*root.glob('skills/**/*.md'), *root.glob('reference/policies/*.md'), *root.glob('reference/rubrics/*.md'), *root.glob('reference/standards/*.md'), *root.glob('agents/*.md')]):
         for ref in _refs(path, root):
             if not ref.exists():
                 errors.append(f'{path.relative_to(root)}: reference to missing file {ref}')

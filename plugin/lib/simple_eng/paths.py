@@ -10,6 +10,7 @@ STATE = 'docs/STATE.md'
 ANNOTATIONS = '.simple-eng/annotations.jsonl'
 AREAS = '.simple-eng/areas.json'
 DOCS = 'docs'
+STAGES = ('prototype', 'pre-production', 'production')
 
 
 def git_toplevel(start):

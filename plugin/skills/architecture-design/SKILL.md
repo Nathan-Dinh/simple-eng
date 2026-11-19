@@ -24,9 +24,9 @@ Document trust boundaries, important data flows, integration contracts, failure 
 
 ## Evaluate choices
 
-Follow `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/technology-selection.md`, and check priorities against `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/quality-attributes.md`. Prefer the existing technologies unless evidence justifies a change. Do not introduce a service, abstraction, or dependency without a requirement.
+Apply the Design standards (`${CLAUDE_PLUGIN_ROOT}/reference/standards/design.md`): framework conventions, the four layers mapped onto the framework's structure, established system-design patterns, and error handling. Follow `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/technology-selection.md`, and check priorities against `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/quality-attributes.md`. Prefer the existing technologies unless evidence justifies a change. Do not introduce a service, abstraction, or dependency without a requirement.
 
-Present each consequential choice in chat with its alternatives, evidence, and consequences, and wait for the user's go-ahead (`${CLAUDE_PLUGIN_ROOT}/reference/policies/working-rules.md`); until then it stays proposed. Once approved, record what was chosen, over what, and why under "Stack and technology choices" in the TRD. Where a choice also shapes data or security boundaries, assess checkpoint D as well as C.
+Present each consequential choice in chat with its alternatives, evidence, and consequences, and wait for the user's go-ahead (the simple-eng rules in CLAUDE.md); until then it stays proposed. Once approved, record what was chosen, over what, and why under "Stack and technology choices" in the TRD. Where a choice also shapes data or security boundaries, assess checkpoint D as well as C.
 
 ## Verify and maintain
 

@@ -74,6 +74,20 @@ class PluginStructureTests(unittest.TestCase):
         for rel in ('reference/templates/claude-md-block.md', 'reference/templates/state.md', *documents):
             self.assertEqual(traceability.ANY_ID.findall((PLUGIN / rel).read_text()), [], rel)
 
+    def test_tier_agents(self):
+        found = {name: a['meta']['model'] for name, a in guidance.agents(PLUGIN).items()}
+        self.assertEqual(found, {'labor': 'haiku', 'implementer': 'sonnet', 'reviewer': 'opus'})
+        for name, agent in guidance.agents(PLUGIN).items():
+            self.assertIn('Open questions', agent['body'], name)
+
+    def test_lead_routes_to_every_agency_skill(self):
+        lead = (PLUGIN / 'skills/lead/SKILL.md').read_text()
+        for name in ('initialize-project', 'analyze-existing-project', 'architecture-design', 'database-engineering',
+                     'ui-ux-design', 'feature-development', 'maintain-project', 'research-management'):
+            self.assertIn(f'`simple-eng:{name}`', lead)
+        for name in guidance.agents(PLUGIN):
+            self.assertIn(f'`simple-eng:{name}`', lead)
+
     def test_frontmatter_parser(self):
         meta, body = markdown.parse_frontmatter('---\ndescription: a: b\nneeds: [x, y]\nflag: true\n---\n\nBody\n')
         self.assertEqual(meta, {'description': 'a: b', 'needs': ['x', 'y'], 'flag': True})
@@ -88,6 +102,10 @@ class BrokenPluginTests(unittest.TestCase):
             'long description': ('skills/status/SKILL.md', lambda t: t.replace('description: ', 'description: ' + 'x' * 1600, 1), 'limit 1536'),
             'over budget': ('reference/policies/working-rules.md', lambda t: t + 'y' * 13000, 'budget'),
             'map heading': ('reference/templates/project.md', lambda t: t.replace('## Stack', '## Tech'), 'heading "Stack"'),
+            'agent model': ('agents/labor.md', lambda t: t.replace('model: haiku', 'model: gpt'), 'model must be one of'),
+            'agent name': ('agents/labor.md', lambda t: t.replace('name: labor', 'name: worker'), 'name must match'),
+            'stage tag': ('reference/standards/design.md', lambda t: t.replace('- [all]', '- [beta]', 1), 'unknown stage tag [beta]'),
+            'yaml colon': ('skills/status/SKILL.md', lambda t: t.replace('description: ', 'description: Status: ', 1), 'must not contain'),
             'document template': ('reference/project-map.json', lambda t: t.replace('"template": "app-flow.md", "area"', '"template": "gone.md", "area"')
                                   .replace('"template": "app-flow.md",\n      "area"', '"template": "gone.md",\n      "area"'), 'template gone.md not found'),
         }
