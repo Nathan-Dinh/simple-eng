@@ -8,7 +8,7 @@ from . import PLUGIN_ROOT, annotations, plugin_version
 from .context import DEFAULT_LIMIT, build_context, record_files
 from .guidance import budget_report, check_plugin
 from .hooks import HANDLERS, run as run_hook
-from .paths import is_initialized, project_root
+from .paths import CONFIG, STAGES, is_initialized, load_config, project_root
 from .projectmap import render_status, status_report
 from .traceability import validate_traceability
 from .upgrade import apply_cleanup, decline_cleanup, describe, has_leftovers, leftovers
@@ -185,6 +185,19 @@ def cmd_areas(args):
     return 0
 
 
+def cmd_stage(args):
+    root = _initialized(args)
+    config = load_config(root)
+    current = config.get('stage', 'prototype')
+    if not args.stage:
+        print(f'Stage: {current}. Standards tagged for a later stage are skipped, and reports say which.')
+        return 0
+    config['stage'] = args.stage
+    (root / CONFIG).write_text(json.dumps(config, indent=2) + '\n', encoding='utf-8')
+    print(f'Stage changed from {current} to {args.stage}.')
+    return 0
+
+
 def cmd_cleanup(args):
     root = _root(args)
     if not is_initialized(root):
@@ -275,6 +288,9 @@ def build_parser():
     q.add_argument('source')
     q.add_argument('target')
     p.set_defaults(func=cmd_areas)
+    p = sub.add_parser('stage', help='show the project stage, or change it (only after the user agrees)')
+    p.add_argument('stage', nargs='?', choices=STAGES)
+    p.set_defaults(func=cmd_stage)
     p = sub.add_parser('cleanup', help='remove simple-eng 0.2 leftovers (dry run unless --apply)')
     group = p.add_mutually_exclusive_group()
     group.add_argument('--apply', action='store_true')

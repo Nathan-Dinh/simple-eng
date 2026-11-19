@@ -48,6 +48,8 @@ def load_config(root):
         raise ValueError(f'{CONFIG} is not valid JSON: {exc}') from exc
     if not isinstance(config, dict):
         raise ValueError(f'{CONFIG} must contain a JSON object')
+    if config.get('stage', 'prototype') not in STAGES:
+        raise ValueError(f'{CONFIG}: "stage" must be one of {", ".join(STAGES)}')
     if not isinstance(config.get('areas', {}), dict):
         raise ValueError(f'{CONFIG}: "areas" must be an object keyed by area id')
     return config

@@ -81,7 +81,7 @@ class ScaffoldTests(unittest.TestCase):
 
     def test_malformed_config_is_a_clear_error(self):
         (self.root / '.simple-eng').mkdir()
-        for text in ('[]', '{"areas": []}'):
+        for text in ('[]', '{"areas": []}', '{"stage": "beta"}'):
             with self.subTest(config=text):
                 (self.root / '.simple-eng/config.json').write_text(text)
                 with self.assertRaisesRegex(ValueError, 'config.json'):

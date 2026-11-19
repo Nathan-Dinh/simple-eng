@@ -37,6 +37,10 @@ class CliTests(unittest.TestCase):
         report = json.loads(self.cli('status', '--json', '--workflow', 'feature-development').stdout)
         self.assertIn('commands', report['blocking'])
         self.assertIn('No simple-eng 0.2 leftovers', self.cli('cleanup').stdout)
+        self.assertIn('Stage: prototype', self.cli('stage').stdout)
+        self.cli('stage', 'production')
+        self.assertIn('Stage: production', self.cli('context').stdout)
+        self.assertNotEqual(self.cli('stage', 'beta', check=False).returncode, 0)
 
     def test_docs_command(self):
         self.assertNotEqual(self.cli('docs', check=False).returncode, 0)

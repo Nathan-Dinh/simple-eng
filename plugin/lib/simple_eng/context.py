@@ -107,6 +107,9 @@ def build_context(root, plugin_root=PLUGIN_ROOT, limit=DEFAULT_LIMIT):
     except ValueError as exc:
         config = {}
         head.append(f'Knowledge areas unavailable: {exc}')
+    if config:
+        head.append(f'Stage: {config.get("stage", "prototype")}. Standards apply in proportion to it; changing it needs '
+                    "the user's go-ahead (`simple-eng stage`).")
     head.extend(_annotation_lines(root))
     try:
         head.extend(upgrade_lines(root, config))
