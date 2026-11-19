@@ -4,7 +4,7 @@ import re
 import unittest
 
 from helpers import PLUGIN, plugin_copy, records
-from simple_eng import guidance, markdown
+from simple_eng import guidance, markdown, projectmap
 
 CONSEQUENTIAL = 'production security changes'
 USER_ONLY = ('init', 'approve', 'reject')
@@ -58,15 +58,20 @@ class PluginStructureTests(unittest.TestCase):
             self.assertIn(f'**{letter} —', skill)
             self.assertIn(f'| {letter} —', state)
 
-    def test_initialize_phases_ordered_and_loaded_lazily(self):
-        skill = (PLUGIN / 'skills/initialize-project/SKILL.md').read_text()
-        phases = re.findall(r'\$\{CLAUDE_SKILL_DIR\}/(phase-(\d)-[\w-]+\.md)', skill)
-        self.assertEqual([int(n) for _, n in phases], [1, 2, 3, 4, 5, 6])
-        for name, _ in phases:
-            self.assertTrue((PLUGIN / 'skills/initialize-project' / name).is_file(), name)
+    def test_project_docs_guidance_ordered_and_loaded_lazily(self):
+        skill = (PLUGIN / 'skills/project-docs/SKILL.md').read_text()
+        documents = projectmap.load_documents(PLUGIN)
+        guidance_files = re.findall(r'\$\{CLAUDE_SKILL_DIR\}/([\w-]+\.md)', skill)
+        self.assertEqual(guidance_files, [d['template'] for d in documents])
+        for doc in documents:
+            self.assertIn(doc['path'], skill)
+            self.assertTrue((PLUGIN / 'skills/project-docs' / doc['template']).is_file(), doc['template'])
+            template = (PLUGIN / 'reference/templates' / doc['template']).read_text()
+            self.assertIn('- Status: draft\n', template, doc['template'])
 
     def test_block_and_state_template_have_no_real_ids(self):
-        for rel in ('reference/templates/claude-md-block.md', 'reference/templates/state.md', 'reference/templates/requirements.md'):
+        documents = [f'reference/templates/{d["template"]}' for d in projectmap.load_documents(PLUGIN)]
+        for rel in ('reference/templates/claude-md-block.md', 'reference/templates/state.md', *documents):
             self.assertEqual(records.ANY_ID.findall((PLUGIN / rel).read_text()), [], rel)
 
     def test_event_schema_matches_validator(self):
@@ -89,6 +94,8 @@ class BrokenPluginTests(unittest.TestCase):
             'long description': ('skills/status/SKILL.md', lambda t: t.replace('description: ', 'description: ' + 'x' * 1600, 1), 'limit 1536'),
             'over budget': ('reference/policies/evidence.md', lambda t: t + 'y' * 13000, 'budget'),
             'map heading': ('reference/templates/project.md', lambda t: t.replace('## Stack', '## Tech'), 'heading "Stack"'),
+            'document template': ('reference/project-map.json', lambda t: t.replace('"template": "app-flow.md", "area"', '"template": "gone.md", "area"')
+                                  .replace('"template": "app-flow.md",\n      "area"', '"template": "gone.md",\n      "area"'), 'template gone.md not found'),
         }
         for label, (rel, change, expected) in breakages.items():
             with self.subTest(label):

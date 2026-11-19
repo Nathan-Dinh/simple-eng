@@ -80,6 +80,12 @@ class RecordTests(ProjectCase):
         self.write('docs/other.md', '| REQ-0001 | Duplicate |\n')
         self.assertTrue(any('REQ-0001 is defined more than once' in e for e in records.validate_records(self.root)))
 
+    def test_project_document_status_is_checked(self):
+        self.write('docs/product/PRD.md', '# PRD\n\n- Status: draft\n')
+        self.assertEqual(records.validate_records(self.root), [])
+        self.write('docs/product/PRD.md', '# PRD\n\n- Status: approved\n')
+        self.assertTrue(any('PRD.md: Status must be draft or reviewed' in e for e in records.validate_records(self.root)))
+
     def test_add_decision_creates_record_with_status(self):
         rec = self.propose()
         self.assertEqual(rec['decision_id'], 'DEC-0001')

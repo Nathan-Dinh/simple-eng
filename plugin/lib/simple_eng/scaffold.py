@@ -1,4 +1,4 @@
-"""Project setup for /simple-eng:init. Dry run by default; only the marked CLAUDE.md block is ever replaced."""
+"""Project setup for /simple-eng:init and `simple-eng docs`. Dry run by default; only the marked CLAUDE.md block is ever replaced."""
 import datetime as dt
 import difflib
 import json
@@ -7,6 +7,7 @@ from pathlib import Path
 
 from . import PLUGIN_ROOT, plugin_version
 from .paths import CONFIG, PROJECT, STATE, load_config
+from .projectmap import MISSING, NOT_APPLICABLE, load_documents, status_report
 
 START = '<!-- simple-eng:start version={version} -->'
 END = '<!-- simple-eng:end -->'
@@ -29,19 +30,26 @@ def _with_block(existing, block):
     return existing.rstrip('\n') + ('\n\n' if existing.strip() else '') + block + '\n'
 
 
+def _plan(root, rel, new):
+    path = Path(root) / rel
+    old = path.read_text(encoding='utf-8') if path.is_file() else None
+    if old == new:
+        return {'path': rel, 'action': 'unchanged', 'content': new, 'diff': ''}
+    diff = ''.join(difflib.unified_diff((old or '').splitlines(True), new.splitlines(True),
+                                        fromfile=f'a/{rel}' if old is not None else '/dev/null', tofile=f'b/{rel}'))
+    return {'path': rel, 'action': 'update' if old is not None else 'create', 'content': new, 'diff': diff}
+
+
+def _template(plugin_root, name):
+    return (Path(plugin_root) / 'reference' / 'templates' / name).read_text(encoding='utf-8')
+
+
 def planned_changes(root, plugin_root=PLUGIN_ROOT):
     root = Path(root)
     changes = []
 
     def plan(rel, new):
-        path = root / rel
-        old = path.read_text(encoding='utf-8') if path.is_file() else None
-        if old == new:
-            changes.append({'path': rel, 'action': 'unchanged', 'content': new, 'diff': ''})
-            return
-        diff = ''.join(difflib.unified_diff((old or '').splitlines(True), new.splitlines(True),
-                                            fromfile=f'a/{rel}' if old is not None else '/dev/null', tofile=f'b/{rel}'))
-        changes.append({'path': rel, 'action': 'update' if old is not None else 'create', 'content': new, 'diff': diff})
+        changes.append(_plan(root, rel, new))
 
     config = load_config(root)
     config.setdefault('initialized', dt.date.today().isoformat())
@@ -52,13 +60,35 @@ def planned_changes(root, plugin_root=PLUGIN_ROOT):
     plan('CLAUDE.md', _with_block(claude.read_text(encoding='utf-8') if claude.is_file() else None, claude_md_block(plugin_root)))
     for rel, template in ((PROJECT, 'project.md'), (STATE, 'state.md')):
         if not (root / rel).exists():
-            plan(rel, (Path(plugin_root) / 'reference' / 'templates' / template).read_text(encoding='utf-8'))
+            plan(rel, _template(plugin_root, template))
+    return changes
+
+
+def planned_docs(root, plugin_root=PLUGIN_ROOT):
+    """Create the project documents that are missing, from their templates. An existing document is never touched,
+    and a document is skipped while its legacy record still exists (migrate that first) or its area does not apply."""
+    root = Path(root)
+    report = {d['id']: d for d in status_report(root, plugin_root)['documents']}
+    today = dt.date.today().isoformat()
+    changes = []
+    for doc in load_documents(plugin_root):
+        found = report[doc['id']]
+        if found['status'] == NOT_APPLICABLE:
+            changes.append({'path': doc['path'], 'action': 'skip', 'content': '', 'diff': '',
+                            'reason': f'not applicable: {found["detail"]}'})
+        elif found['status'] != MISSING:
+            changes.append({'path': doc['path'], 'action': 'unchanged', 'content': '', 'diff': ''})
+        elif 'legacy file' in found['detail']:
+            changes.append({'path': doc['path'], 'action': 'skip', 'content': '', 'diff': '', 'reason': found['detail']})
+        else:
+            text = _template(plugin_root, doc['template']).replace('- Last updated:', f'- Last updated: {today}', 1)
+            changes.append(_plan(root, doc['path'], text))
     return changes
 
 
 def apply_changes(root, changes):
     for change in changes:
-        if change['action'] == 'unchanged':
+        if change['action'] in ('unchanged', 'skip'):
             continue
         path = Path(root) / change['path']
         path.parent.mkdir(parents=True, exist_ok=True)

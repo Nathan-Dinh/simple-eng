@@ -1,8 +1,8 @@
 {
   "name": "simple-eng",
   "displayName": "simple-eng",
-  "version": "0.1.1",
-  "description": "Engineering lifecycle workflows with durable project state: discovery, decisions with typed approvals, evidence, and traceability that survive compaction and new sessions.",
+  "version": "0.2.0",
+  "description": "Engineering lifecycle workflows with durable project state: project documents (PRD, TRD, App Flow, UI/UX brief, backend schema, implementation plan), decisions with typed approvals, evidence, and traceability that survive compaction and new sessions.",
   "author": {
     "name": "Nathan Dinh"
   },

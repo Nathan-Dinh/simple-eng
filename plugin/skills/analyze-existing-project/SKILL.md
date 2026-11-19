@@ -21,10 +21,10 @@ Then ask a small group of material questions the repository cannot answer: users
 
 ## Prioritize
 
-Identify the highest-impact gaps and whether they block a safe change. Do not turn discovery into an unsolicited redesign. For architecture work, review quality priorities and prior DECs first; for database work, look at the schema, migrations, tenancy, and tests; for features, use `simple-eng:feature-development`.
+Identify the highest-impact gaps and whether they block a safe change. Do not turn discovery into an unsolicited redesign. When the project documents are missing, legacy, or out of date (`simple-eng status`), offer to draft them from the code with `simple-eng:project-docs` in existing-project mode. For architecture work, review quality priorities and prior DECs first; for database work, look at the schema, migrations, tenancy, and tests; for features, use `simple-eng:feature-development`.
 
 ## Record and hand off
 
-- Write findings into `docs/PROJECT.md` sections (stack, commands, environments) and the other area records that `simple-eng status` lists, with labels and paths.
+- Write findings into `docs/PROJECT.md` sections (stack, commands, environments) and the project documents that `simple-eng status` lists, with labels and paths.
 - In `docs/STATE.md`, record the lifecycle stage, open questions, drift candidates, and one proposed next checkpoint or action.
 - If there is no change request, stop at discovery and ask only the highest-impact next question.

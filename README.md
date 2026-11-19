@@ -35,11 +35,32 @@ What a project gets:
 |---|---|---|
 | `CLAUDE.md` (a block between `simple-eng` markers) | The always-on rules: evidence labels, what needs approval, how to keep state | `/simple-eng:init`; your own text outside the markers is never touched |
 | `docs/PROJECT.md` | Stable facts: problem, users, scope, constraints, decision owners, stack, commands, environments | Claude, from what it finds and what you tell it |
+| Project documents: `docs/product/PRD.md`, `docs/product/app-flow.md`, `docs/design/ui-ux-brief.md`, `docs/architecture/TRD.md`, `docs/backend/schema.md`, `docs/plan/implementation-plan.md` | What is being built and how: PRD, App Flow, UI/UX Design Brief, TRD, Backend Schema, Implementation Plan. Each is `draft` until you say you've reviewed it | Claude, from your brief or the codebase, via `project-docs` |
 | `docs/STATE.md` | Work in progress: current workflow and phase, checkpoints, open questions, pending decisions | Claude, as work moves forward |
 | `.simple-eng/config.json` | Plugin version marker, and optional pointers to facts that already live elsewhere | `/simple-eng:init`, or you |
 | `docs/decisions/records/DEC-####.md`, `docs/evidence/records/EVD-####.md`, `decision-log/events.jsonl` | Decision and evidence records, plus the decision event log | `simple-eng` commands and the approval hook |
 
 Commit these files. They are the project's memory.
+
+## Project documents
+
+At the start of a project, Claude drafts six documents and then fills the gaps with you, one document at a time:
+
+| Document | Holds |
+|---|---|
+| PRD | Goals and success metrics, users, stories, `REQ-####` requirements with measurable acceptance |
+| App Flow | Entry points, screens and steps, primary flows, error and edge paths, navigation |
+| UI/UX Design Brief | Design goals, visual direction, design system, responsive behavior, accessibility target, interaction states |
+| TRD | Quality drivers, stack choices with their DECs, architecture, integrations, security, operations |
+| Backend Schema | Entities, data model, API surface, tenant and authorization isolation, migrations |
+| Implementation Plan | Milestones as small, verifiable slices, linked to requirements, with exit checks |
+
+- **New project** (`initialize-project`): Claude asks for a brief in your own words (rough notes or a pasted spec work), drafts all six documents from it, then asks a few targeted questions per turn.
+- **Existing project** (`analyze-existing-project`): Claude drafts the documents from the code first (routes, schema, migrations, manifests, components), labels each claim verified or inferred, and asks only what the code can't answer, such as goals, priorities, and success metrics.
+
+Every claim is labeled. A document stays `draft` until you say you've reviewed it. Reviewing a document doesn't approve the consequential choices inside it, such as the stack or the schema; those still go through `/simple-eng:approve`. A document that doesn't apply (no UI, no backend) is marked `Not applicable` and isn't asked about again.
+
+**Upgrading from 0.1.x:** the PRD, TRD, Backend Schema, and UI/UX Brief replace `docs/product/requirements.md`, `docs/architecture/overview.md`, `docs/database/design.md`, and `docs/design/notes.md`. `simple-eng status` flags any of these old files it finds. `project-docs` offers to move each one with `git mv` and reshape it, and changes nothing until you agree.
 
 ## How it keeps context
 
@@ -62,7 +83,8 @@ If you already keep a fact somewhere, point at it instead of duplicating it:
 | `/simple-eng:status` | See which project facts are recorded or missing |
 | `/simple-eng:approve DEC-#### [note]` | Approve a pending decision (only you can) |
 | `/simple-eng:reject DEC-#### <reason>` | Reject a pending decision (only you can) |
-| `initialize-project` | Discovery for a new project, in phases that resume across sessions |
+| `initialize-project` | Discovery for a new project: starts from your brief and resumes across sessions |
+| `project-docs` | Draft and fill the six project documents, from your brief (new project) or from the code (existing project) |
 | `analyze-existing-project` | Understand an existing codebase before changing it |
 | `architecture-design` | Architecture and technology choices |
 | `database-engineering` | Schema, migrations, tenancy, data lifecycle |
@@ -96,6 +118,7 @@ simple-eng add-decision --title T --summary S --actor A [--evidence EVD-####]
 simple-eng add-evidence --claim C --classification verified|user-provided|inferred|proposed|unknown --source S
 simple-eng show DEC-####                   list a decision's events
 simple-eng dashboard --output report.html  static, read-only decision report
+simple-eng docs [--apply]                  create missing project documents from their templates; never overwrites
 simple-eng init [--apply]                  what /simple-eng:init runs
 ```
 

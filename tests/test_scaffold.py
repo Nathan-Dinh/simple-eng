@@ -46,6 +46,30 @@ class ScaffoldTests(unittest.TestCase):
         self.assertNotIn('old rules', text)
         self.assertEqual((self.root / 'docs/PROJECT.md').read_text(), '# Mine\n')
 
+    def test_docs_created_from_templates_and_never_overwritten(self):
+        scaffold.apply_changes(self.root, scaffold.planned_changes(self.root))
+        (self.root / 'docs/architecture').mkdir(parents=True)
+        (self.root / 'docs/architecture/TRD.md').write_text('# Mine\n\n- Status: reviewed\n')
+        (self.root / 'docs/product').mkdir(parents=True)
+        (self.root / 'docs/product/requirements.md').write_text('## Requirements\n')
+        config = json.loads((self.root / '.simple-eng/config.json').read_text())
+        config['areas'] = {'ui': {'not_applicable': 'no interface'}}
+        (self.root / '.simple-eng/config.json').write_text(json.dumps(config))
+        changes = {c['path']: c for c in scaffold.planned_docs(self.root)}
+        self.assertEqual(changes['docs/architecture/TRD.md']['action'], 'unchanged')
+        self.assertEqual(changes['docs/product/PRD.md']['action'], 'skip')
+        self.assertIn('legacy', changes['docs/product/PRD.md']['reason'])
+        self.assertEqual(changes['docs/design/ui-ux-brief.md']['action'], 'skip')
+        self.assertEqual(changes['docs/plan/implementation-plan.md']['action'], 'create')
+        self.assertFalse((self.root / 'docs/plan').exists(), 'planning must not write')
+        scaffold.apply_changes(self.root, changes.values())
+        self.assertEqual((self.root / 'docs/architecture/TRD.md').read_text(), '# Mine\n\n- Status: reviewed\n')
+        self.assertFalse((self.root / 'docs/product/PRD.md').exists())
+        self.assertFalse((self.root / 'docs/design/ui-ux-brief.md').exists())
+        plan = (self.root / 'docs/plan/implementation-plan.md').read_text()
+        self.assertIn('- Status: draft', plan)
+        self.assertRegex(plan, r'- Last updated: \d{4}-\d{2}-\d{2}')
+
     def test_missing_end_marker_refuses_instead_of_adding_a_second_block(self):
         (self.root / 'CLAUDE.md').write_text('Intro\n\n<!-- simple-eng:start version=0.0.1 -->\nold rules\n')
         with self.assertRaisesRegex(ValueError, 'no end marker'):

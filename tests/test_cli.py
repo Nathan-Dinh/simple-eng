@@ -47,6 +47,19 @@ class CliTests(unittest.TestCase):
         self.cli('dashboard', '--output', str(self.root / 'dash.html'))
         self.assertIn('Use SQLite', (self.root / 'dash.html').read_text())
 
+    def test_docs_command(self):
+        self.assertNotEqual(self.cli('docs', check=False).returncode, 0)
+        self.cli('init', '--apply')
+        out = self.cli('docs').stdout
+        self.assertIn('create  docs/product/PRD.md', out)
+        self.assertIn('Dry run', out)
+        self.assertFalse((self.root / 'docs/product/PRD.md').exists())
+        self.cli('docs', '--apply')
+        self.assertTrue((self.root / 'docs/backend/schema.md').is_file())
+        self.assertIn('- PRD: draft', self.cli('status').stdout)
+        self.assertIn('Validation passed', self.cli('validate').stdout)
+        self.assertIn('unchanged  docs/product/PRD.md', self.cli('docs').stdout)
+
     def test_hook_entry_points(self):
         self.cli('init', '--apply')
         denied = self.cli('hook', 'pre-tool-use', stdin=json.dumps(

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from . import PLUGIN_ROOT
 from .paths import DECISIONS, DOCS, EVIDENCE, LOG
+from .projectmap import BROKEN, document_status, load_documents
 
 EVENTS = ('proposed', 'evaluated', 'deferred', 'approved', 'rejected', 'implemented', 'verified', 'superseded')
 LOW_AUTHORITY = ('proposed', 'evaluated', 'deferred', 'superseded')
@@ -227,6 +228,10 @@ def validate_records(root, extra_files=()):
                 errors.append(f'{rel}: missing "- Status:" line (expected {expected})')
             elif m.group(2) != expected:
                 errors.append(f'{rel}: Status is {m.group(2)!r} but the latest event is {expected!r}')
+    for doc in load_documents():
+        found = document_status(root, doc)
+        if found['status'] == BROKEN:
+            errors.append(found['detail'])
     return errors
 
 

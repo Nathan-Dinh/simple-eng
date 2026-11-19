@@ -20,7 +20,7 @@ Use C4 at the levels that help:
 - **Component**: internal responsibilities and dependencies, only when it clarifies a real design or change.
 - Code-level detail only when the implementation complexity justifies it.
 
-Document trust boundaries, important data flows, integration contracts, failure modes, and deployment topology where relevant. Use Mermaid only when it communicates more clearly than prose and matches the implementation. Record the result in `docs/architecture/overview.md`, using `${CLAUDE_PLUGIN_ROOT}/reference/templates/architecture.md`.
+Document trust boundaries, important data flows, integration contracts, failure modes, and deployment topology where relevant. Use Mermaid only when it communicates more clearly than prose and matches the implementation. Record the result in the TRD, `docs/architecture/TRD.md`, using `${CLAUDE_PLUGIN_ROOT}/reference/templates/trd.md`.
 
 ## Evaluate choices
 

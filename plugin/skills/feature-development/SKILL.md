@@ -7,11 +7,17 @@ needs: [problem-users, commands]
 
 ## 1. Discover
 
-Establish the user problem, actors, expected behavior, success measure, edge cases, affected components, required data, dependencies, and security and privacy implications. Inspect the existing code and DECs first. Ask a small group of consequential questions and mark what stays unresolved.
+Establish nine items for every feature: the user problem, actors, expected behavior, success measure, edge cases, affected components, required data, dependencies, and security and privacy implications. An item that does not apply is `Not applicable: <reason>`.
+
+Answer what you can first from the existing code, DECs, and project documents (PRD, App Flow, TRD, Backend Schema). They are sources for the items, not a substitute for them. A document claim keeps its own label (`${CLAUDE_PLUGIN_ROOT}/reference/policies/evidence.md`) and its path as source; an inferred claim, or one from a `draft` document, is not confirmed.
+
+Then ask a small group of consequential questions, only about items that are still unknown and about conflicts between the documents, the code, and the request. Present each conflict with its options and say why each answer matters; do not resolve it silently.
+
+End discovery with a checklist of the nine items: `Item | Answer | Label | Source`. A substantial feature records it in its spec; a small change shows it in the reply. Mark what stays unresolved, and do not move on while an item that changes scope, data, or permissions is unknown. When a confirmed answer contradicts a project document, report it as drift rather than editing the document silently.
 
 ## 2. Specify
 
-For a substantial feature, write a short spec at `docs/features/FEAT-####.md` from `${CLAUDE_PLUGIN_ROOT}/reference/templates/feature.md`: problem, scope and out-of-scope, stories, requirements with observable acceptance criteria, dependencies, affected components and data, relevant quality attributes, and open questions. A small change needs no document. Resolve conflicting requirements or acceptance criteria with the user; do not invent a target, business rule, or permission. When the feature design is consequential, assess checkpoint E.
+For a substantial feature, write a short spec at `docs/features/FEAT-####.md` from `${CLAUDE_PLUGIN_ROOT}/reference/templates/feature.md`, starting from the discovery checklist; later sections expand its items rather than restate them. Cover problem, scope and out-of-scope, stories, requirements with observable acceptance criteria, dependencies, affected components and data, relevant quality attributes, and open questions. A small change needs no document. Resolve conflicting requirements or acceptance criteria with the user; do not invent a target, business rule, or permission. When the feature design is consequential, assess checkpoint E.
 
 ## 3. Design
 
@@ -27,4 +33,4 @@ Check each acceptance criterion and applicable quality scenario. Run targeted te
 
 ## Record and hand off
 
-Update `docs/STATE.md` (feature, checkpoint E or F status, next step). The closing report covers what changed, requirement and acceptance coverage, checks run with exact commands and results, checks not run, deviations, and remaining risks.
+Update `docs/STATE.md` (feature, checkpoint E or F status, next step), and the feature's milestone in `docs/plan/implementation-plan.md` when one exists. The closing report covers what changed, requirement and acceptance coverage, checks run with exact commands and results, checks not run, deviations, and remaining risks.

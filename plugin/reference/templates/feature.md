@@ -5,6 +5,20 @@
 - Dependencies:
 - Open questions:
 
+## Discovery
+
+| Item | Answer | Label | Source |
+|---|---|---|---|
+| User problem | | | |
+| Actors | | | |
+| Expected behavior | | | |
+| Success measure | | | |
+| Edge cases | | | |
+| Affected components | | | |
+| Required data | | | |
+| Dependencies | | | |
+| Security and privacy | | | |
+
 ## Problem and users
 
 ## Scope and out of scope

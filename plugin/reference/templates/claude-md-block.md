@@ -1,6 +1,6 @@
 ## simple-eng
 
-This project uses the simple-eng plugin. Project knowledge lives in the repository, not in chat or agent memory: `docs/PROJECT.md` holds stable facts, `docs/STATE.md` holds work in progress, `docs/decisions/` and `docs/evidence/` hold records, and `decision-log/events.jsonl` holds decision events. A SessionStart hook loads PROJECT, STATE, knowledge gaps, and pending decisions at startup and after compaction.
+This project uses the simple-eng plugin. Project knowledge lives in the repository, not in chat or agent memory: `docs/PROJECT.md` holds stable facts, the project documents (PRD, App Flow, UI/UX Design Brief, TRD, Backend Schema, Implementation Plan; `simple-eng status` lists their paths) describe what is built and how, `docs/STATE.md` holds work in progress, `docs/decisions/` and `docs/evidence/` hold records, and `decision-log/events.jsonl` holds decision events. A SessionStart hook loads PROJECT, STATE, knowledge gaps, and pending decisions at startup and after compaction.
 
 ### Rules
 

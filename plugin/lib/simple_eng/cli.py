@@ -13,7 +13,7 @@ from .paths import is_initialized, project_root
 from .projectmap import render_status, status_report
 from .records import (CLASSIFICATIONS, LOW_AUTHORITY, add_decision, add_evidence, read_events,
                       validate_events, validate_records)
-from .scaffold import apply_changes, planned_changes
+from .scaffold import apply_changes, planned_changes, planned_docs
 
 
 def _root(args):
@@ -63,6 +63,23 @@ def cmd_init(args):
         print(f'\nApplied to {root} (simple-eng {plugin_version()}).')
     else:
         print('\nDry run. Re-run with --apply to write these changes.')
+    return 0
+
+
+def cmd_docs(args):
+    root = _root(args)
+    if not is_initialized(root):
+        print(f'{root} is not a simple-eng project (run /simple-eng:init).', file=sys.stderr)
+        return 1
+    changes = planned_docs(root, PLUGIN_ROOT)
+    for change in changes:
+        reason = f'  ({change["reason"]})' if change.get('reason') else ''
+        print(f'{change["action"]:>9}  {change["path"]}{reason}')
+    if args.apply:
+        apply_changes(root, changes)
+        print(f'\nApplied to {root}. Existing documents were not touched.')
+    else:
+        print('\nDry run. Re-run with --apply to create the missing documents from their templates.')
     return 0
 
 
@@ -133,6 +150,9 @@ def build_parser():
     p = sub.add_parser('init', help='set up a project (dry run unless --apply)')
     p.add_argument('--apply', action='store_true')
     p.set_defaults(func=cmd_init)
+    p = sub.add_parser('docs', help='create missing project documents from their templates (dry run unless --apply)')
+    p.add_argument('--apply', action='store_true')
+    p.set_defaults(func=cmd_docs)
     p = sub.add_parser('add-decision', help='record a low-authority decision event')
     p.add_argument('--id', help='DEC-#### (default for proposals: next free ID)')
     p.add_argument('--event', choices=LOW_AUTHORITY, default='proposed')

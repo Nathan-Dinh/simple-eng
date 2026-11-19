@@ -15,7 +15,7 @@ For each relevant journey, describe entry points, transitions, user actions, val
 
 ## Design and implement
 
-Prefer existing components, tokens, and patterns, and add a new pattern only for an identified need. Check layout, choices, and feedback against `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/ux-principles.md`, and name the principle behind each consequential choice. Make wireframes, mockups, or prototypes only when they reduce real uncertainty. Record consequential design trade-offs as DECs (`${CLAUDE_PLUGIN_ROOT}/reference/policies/decisions.md`) linked to requirements, and keep notes in `docs/design/notes.md` (`${CLAUDE_PLUGIN_ROOT}/reference/templates/design-notes.md`) when they will be reused.
+Prefer existing components, tokens, and patterns, and add a new pattern only for an identified need. Check layout, choices, and feedback against `${CLAUDE_PLUGIN_ROOT}/reference/rubrics/ux-principles.md`, and name the principle behind each consequential choice. Make wireframes, mockups, or prototypes only when they reduce real uncertainty. Record consequential design trade-offs as DECs (`${CLAUDE_PLUGIN_ROOT}/reference/policies/decisions.md`) linked to requirements, and record the design in the UI/UX Design Brief, `docs/design/ui-ux-brief.md` (`${CLAUDE_PLUGIN_ROOT}/reference/templates/ui-ux-brief.md`). Journeys and navigation belong in the App Flow, `docs/product/app-flow.md`.
 
 ## Verify
 

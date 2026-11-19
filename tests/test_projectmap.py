@@ -22,15 +22,15 @@ class ProjectMapTests(ProjectCase):
         self.assertEqual(statuses(self.root)[0]['stack'], 'present')
 
     def test_placeholder_only_content_is_missing(self):
-        template = (projectmap.PLUGIN_ROOT / 'reference/templates/requirements.md').read_text()
-        self.write('docs/product/requirements.md', template)
+        template = (projectmap.PLUGIN_ROOT / 'reference/templates/prd.md').read_text()
+        self.write('docs/product/PRD.md', template)
         self.assertEqual(statuses(self.root)[0]['requirements'], 'missing')
-        self.write('docs/product/requirements.md', template.replace(
+        self.write('docs/product/PRD.md', template.replace(
             '|---|---|---|---|---|---|\n', '|---|---|---|---|---|---|\n| REQ-0001 | functional | Search under 1s | user-provided | open | user, 2026-10-25 |\n', 1))
         self.assertEqual(statuses(self.root)[0]['requirements'], 'present')
 
     def test_not_applicable_in_record(self):
-        self.write('docs/design/notes.md', '## Users and primary journeys\n\nNot applicable: CLI tool with no UI (verified: no frontend code).\n')
+        self.write('docs/design/ui-ux-brief.md', '## Users and design goals\n\nNot applicable: CLI tool with no UI (verified: no frontend code).\n')
         found, report = statuses(self.root)
         self.assertEqual(found['ui'], 'not applicable')
         self.assertIn('CLI tool', next(a['detail'] for a in report['areas'] if a['id'] == 'ui'))
@@ -53,6 +53,31 @@ class ProjectMapTests(ProjectCase):
         self.assertIn('Missing areas that block architecture-design', projectmap.render_status(report))
         with self.assertRaises(ValueError):
             projectmap.status_report(self.root, workflow='no-such-skill')
+
+    def documents(self):
+        return {d['id']: d for d in projectmap.status_report(self.root)['documents']}
+
+    def test_documents_missing_draft_reviewed(self):
+        self.assertEqual({d['status'] for d in self.documents().values()}, {'missing'})
+        template = (projectmap.PLUGIN_ROOT / 'reference/templates/trd.md').read_text()
+        self.write('docs/architecture/TRD.md', template)
+        self.assertEqual(self.documents()['trd']['status'], 'draft')
+        self.write('docs/architecture/TRD.md', template.replace('- Status: draft', '- Status: Reviewed'))
+        self.assertEqual(self.documents()['trd']['status'], 'reviewed')
+        self.write('docs/architecture/TRD.md', template.replace('- Status: draft', '- Status: done'))
+        self.assertEqual(self.documents()['trd']['status'], 'broken')
+        self.assertIn('Project documents', projectmap.render_status(projectmap.status_report(self.root)))
+
+    def test_documents_follow_not_applicable_area_and_flag_legacy(self):
+        config = json.loads(self.read('.simple-eng/config.json'))
+        config['areas'] = {'ui': {'not_applicable': 'library with no interface'}}
+        self.write('.simple-eng/config.json', json.dumps(config))
+        self.write('docs/product/requirements.md', '## Requirements\n')
+        docs = self.documents()
+        self.assertEqual(docs['ui-ux-brief']['status'], 'not applicable')
+        self.assertEqual(docs['prd']['status'], 'missing')
+        self.assertIn('legacy file docs/product/requirements.md', docs['prd']['detail'])
+        self.assertIn('missing: prd', projectmap.documents_line(projectmap.status_report(self.root)))
 
     def test_summary_groups_by_source(self):
         summary = projectmap.summary_line(statuses(self.root)[1])

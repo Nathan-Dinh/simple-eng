@@ -9,7 +9,7 @@ from pathlib import Path
 from . import PLUGIN_ROOT
 from .context import DEFAULT_LIMIT, HARD_LIMIT
 from .markdown import headings, parse_frontmatter
-from .projectmap import load_map, split_record
+from .projectmap import load_documents, load_map, split_record
 
 DESCRIPTION_LIMIT = 1536          # Claude Code truncates skill listings beyond this.
 BLOCK_BUDGET = 4800               # CLAUDE.md block, always loaded (~1.2k tokens).
@@ -79,6 +79,13 @@ def check_plugin(plugin_root=PLUGIN_ROOT):
             errors.append(f'project-map.json {area["id"]}: template {area.get("template")} not found')
         elif heading.lower() not in (h.lower() for h in headings(template.read_text(encoding='utf-8'))):
             errors.append(f'project-map.json {area["id"]}: heading "{heading}" not in reference/templates/{area["template"]}')
+    for doc in load_documents(root):
+        if not (root / 'reference' / 'templates' / doc['template']).is_file():
+            errors.append(f'project-map.json document {doc["id"]}: template {doc["template"]} not found')
+        if doc.get('area') not in area_ids:
+            errors.append(f'project-map.json document {doc["id"]}: unknown area {doc.get("area")!r}')
+        elif split_record(next(a for a in load_map(root) if a['id'] == doc['area'])['record'])[0] != doc['path']:
+            errors.append(f'project-map.json document {doc["id"]}: area {doc["area"]} records outside {doc["path"]}')
     found = skills(root)
     if not found:
         errors.append('no skills found under skills/')

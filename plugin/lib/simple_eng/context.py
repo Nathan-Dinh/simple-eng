@@ -4,7 +4,7 @@ from pathlib import Path
 from . import PLUGIN_ROOT, plugin_version
 from .markdown import EMPTY_LABEL, TABLE_SEPARATOR, strip_comments
 from .paths import CONFIG, DECISIONS, PROJECT, STATE, is_initialized, load_config
-from .projectmap import area_record, load_map, split_record, status_report, summary_line
+from .projectmap import area_record, documents_line, load_map, split_record, status_report, summary_line
 from .records import pending_decisions, read_events, validate_records
 
 DEFAULT_LIMIT = 6000
@@ -79,6 +79,8 @@ def build_context(root, plugin_root=PLUGIN_ROOT, limit=DEFAULT_LIMIT):
         config = load_config(root)
         report = status_report(root, plugin_root)
         head.append('Knowledge areas: ' + summary_line(report) + '. Details: `simple-eng status`.')
+        if report['documents']:
+            head.append('Project documents: ' + documents_line(report) + '.')
     except ValueError as exc:
         config = {}
         head.append(f'Knowledge areas unavailable: {exc}')

@@ -18,7 +18,7 @@ Answer what you can from the repository and label the rest. Surface conflicts (f
 
 ## Select and design
 
-Compare relational, document, key-value, graph, or other models only when access patterns and consistency needs justify it, and keep the established technology unless a change is justified. Document entities, ownership, cardinality, keys, foreign keys, constraints, normalization and denormalization choices, indexes tied to real queries, transaction consistency, data lifecycle, and the access-control model. Add an ER diagram where it helps. Record it in `docs/database/design.md`, using `${CLAUDE_PLUGIN_ROOT}/reference/templates/database.md`.
+Compare relational, document, key-value, graph, or other models only when access patterns and consistency needs justify it, and keep the established technology unless a change is justified. Document entities, ownership, cardinality, keys, foreign keys, constraints, normalization and denormalization choices, indexes tied to real queries, transaction consistency, data lifecycle, and the access-control model. Add an ER diagram where it helps. Record it, with the API surface over the data, in the Backend Schema, `docs/backend/schema.md`, using `${CLAUDE_PLUGIN_ROOT}/reference/templates/backend-schema.md`.
 
 For multi-tenant systems, define how tenant identity is established, propagated, authorized, and enforced at every read and write boundary, including background jobs, admin flows, exports, and caches. A tenant column alone does not provide isolation. Tenant and security design is consequential: propose it as a DEC (`${CLAUDE_PLUGIN_ROOT}/reference/policies/decisions.md`) and get the owner's approval.
 
