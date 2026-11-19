@@ -1,7 +1,7 @@
 """Session context for the SessionStart hook: factual, size-capped, read from files on disk."""
 from pathlib import Path
 
-from . import PLUGIN_ROOT, annotations, plugin_version
+from . import PLUGIN_ROOT, annotations, plugin_version, project_agents
 from .markdown import EMPTY_LABEL, TABLE_SEPARATOR, strip_comments
 from .paths import CONFIG, PROJECT, STATE, is_initialized, load_config
 from .projectmap import area_record, documents_line, load_map, split_record, status_report, summary_line
@@ -89,6 +89,10 @@ def _annotation_lines(root):
             counts[p['kind']] = counts.get(p['kind'], 0) + 1
         lines.append('Annotation index problems: ' + ', '.join(f'{n} {kind}' for kind, n in counts.items())
                      + ' (`simple-eng validate` lists them).')
+    try:
+        lines.extend(project_agents.context_line(root))
+    except (OSError, ValueError) as exc:
+        lines.append(f'Project agents unavailable: {exc}')
     return lines
 
 

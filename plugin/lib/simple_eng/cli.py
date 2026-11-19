@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import PLUGIN_ROOT, annotations, plugin_version
+from . import PLUGIN_ROOT, annotations, plugin_version, project_agents
 from .context import DEFAULT_LIMIT, build_context, record_files
 from .guidance import budget_report, check_plugin
 from .hooks import HANDLERS, run as run_hook
@@ -30,6 +30,7 @@ def cmd_validate(args):
             return 1
         errors = validate_traceability(root, record_files(root))
         errors += annotations.summarize(annotations.check(root))
+        errors += project_agents.validation_errors(root)
         label = 'project records and the annotation index'
     for error in errors:
         print('ERROR:', error, file=sys.stderr)
@@ -185,6 +186,12 @@ def cmd_areas(args):
     return 0
 
 
+def cmd_agents(args):
+    found = project_agents.report(_initialized(args))
+    print(json.dumps(found, indent=2) if args.json else project_agents.render(found))
+    return 0
+
+
 def cmd_stage(args):
     root = _initialized(args)
     config = load_config(root)
@@ -288,6 +295,9 @@ def build_parser():
     q.add_argument('source')
     q.add_argument('target')
     p.set_defaults(func=cmd_areas)
+    p = sub.add_parser('agents', help='report which areas should get, update, or retire an se- project agent')
+    p.add_argument('--json', action='store_true')
+    p.set_defaults(func=cmd_agents)
     p = sub.add_parser('stage', help='show the project stage, or change it (only after the user agrees)')
     p.add_argument('stage', nargs='?', choices=STAGES)
     p.set_defaults(func=cmd_stage)

@@ -63,3 +63,12 @@ Every subagent returns the same shape, so you can combine them:
 - Batch every open question from the task into a single ask. An approval covers only the step asked about.
 - Before reporting done, run the checks that cover the change, and `simple-eng validate` for the annotation index. Update `docs/STATE.md`.
 - Give the user one answer: what changed, findings by severity, what was verified and how, what was not, and the questions that need them.
+
+## Project agents
+
+Project agents (`se-` agents) bring knowledge of one area of this codebase; agencies bring domain expertise. They work under the agencies, not in place of them. An area is the set of files that share an Area value in the annotation index.
+
+- `simple-eng agents` reports areas that reached the size threshold (15 files by default) without an agent, agents whose area was renamed, merged, or removed, and agents whose area has shrunk. The session context lists the same.
+- Creating an agent is consequential: propose it in chat (its area, its file count, and what it would know) and wait for the go-ahead. Then write `.claude/agents/se-<area>.md` from `${CLAUDE_PLUGIN_ROOT}/reference/templates/project-agent.md`, with the key files from `simple-eng annotations --area <area>`, the domain rules from the project docs, and the standards that matter there. Commit it with the code, so every session and teammate uses the same agent.
+- Keep agents in step with their areas: when an area is renamed, update the agent's name and `area:`; when areas merge, merge their agents; when an area is gone or small, propose retiring its agent. Ask before each change.
+- Only touch agents named `se-*`. Never edit, merge, or delete an agent the user wrote. A user who hand-edits an `se-` agent and wants to keep it renames it without the prefix, and simple-eng leaves it alone from then on.
